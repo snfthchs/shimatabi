@@ -15,7 +15,7 @@
 | 暗号化・ハッシュ | 個人情報は Fernet（`cryptography`）、パスワードは argon2id（`argon2-cffi`） |
 | Pythonのパッケージ管理 | `pip` と `venv`（`uv` が未導入で、新しく入れる手間を避けるため） |
 | フロントのパッケージ管理 | `npm`（`pnpm` が未導入のため） |
-| lint・型チェック | バックエンドは `ruff`・`mypy`、フロントエンドは `eslint`・`tsc` |
+| lint・format・型チェック | バックエンドは `ruff`・`mypy`、フロントエンドは `eslint`・`prettier`・`tsc` |
 | テスト | バックエンドは `pytest`。フロントエンドの自動テストは作らない（`docs/product/test-and-deliverables-plan.md`） |
 
 設計判断は `docs/adr/` にある（技術スタックとDB、ログイン方式、個人情報の暗号化）。
@@ -28,8 +28,9 @@
 |---|---|
 | 依存関係のインストール | `python3 -m venv backend/.venv` と `backend/.venv/bin/pip install -r backend/requirements-dev.txt`、`npm --prefix frontend install` |
 | テスト | `cd backend && .venv/bin/pytest` |
-| lint | `cd backend && .venv/bin/ruff check . && .venv/bin/ruff format --check .`、`npm --prefix frontend run lint` |
+| lint・format-check | `cd backend && .venv/bin/ruff check . && .venv/bin/ruff format --check .`、`npm --prefix frontend run lint && npm --prefix frontend run format:check` |
 | 型チェック | `cd backend && .venv/bin/mypy`、`npm --prefix frontend run typecheck` |
+| 整形（フロントエンド） | `npm --prefix frontend run format`（Prettier。`src/api/schema.d.ts` などの生成物は対象外） |
 | ビルド（フロントエンド） | `npm --prefix frontend run build` |
 | ローカル起動（バックエンド） | `cd backend && .venv/bin/uvicorn app.main:app --reload --env-file ../.env`（http://localhost:8000） |
 | ローカル起動（フロントエンド） | `npm --prefix frontend run dev`（http://localhost:5173。`/api` はバックエンドへ転送される） |
