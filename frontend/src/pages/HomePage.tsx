@@ -44,8 +44,10 @@ export default function HomePage() {
       : error?.message
 
   return (
-    <div className="space-y-6">
-      <section className="space-y-1">
+    // スマホは縦に1列。PC幅では、左に入力と条件、右に結果を並べる。
+    // 右の結果が高くなっても、左の行が引き伸ばされないよう、最後の行（1fr）に、余りの高さを受けさせる。
+    <div className="grid gap-6 lg:grid-cols-2 lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-10">
+      <section className="space-y-1 lg:col-start-1">
         <h1 className="text-xl font-bold text-slate-900">
           <span className="inline-block">沖縄の体験を、</span>
           <span className="inline-block">サクッと探して、予約。</span>
@@ -55,7 +57,7 @@ export default function HomePage() {
         </p>
       </section>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3 lg:col-start-1">
         <label htmlFor="concierge-message" className="block text-sm font-medium text-slate-800">
           どんな体験を探していますか？
         </label>
@@ -93,7 +95,15 @@ export default function HomePage() {
         </div>
       </form>
 
-      <div aria-live="polite" className="space-y-3">
+      <div
+        aria-live="polite"
+        className="space-y-3 lg:col-start-2 lg:row-span-4 lg:row-start-1"
+      >
+        {!concierge.isPending && !concierge.data && !errorMessage && (
+          <p className="hidden rounded-2xl border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500 lg:block">
+            相談すると、合う体験の提案が、ここに出ます。
+          </p>
+        )}
         {concierge.isPending && <LoadingNotice>AIが考えています…</LoadingNotice>}
         {errorMessage && <ErrorNotice>{errorMessage}</ErrorNotice>}
         {concierge.data && (
@@ -119,7 +129,7 @@ export default function HomePage() {
         )}
       </div>
 
-      <section className="space-y-2">
+      <section className="space-y-2 lg:col-start-1">
         <h2 className="text-sm font-bold text-slate-800">条件から探す</h2>
         <div className="flex flex-wrap gap-2">
           <Link to="/experiences?kids_ok=true" className={shortcutClass}>

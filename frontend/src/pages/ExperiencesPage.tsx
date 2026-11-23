@@ -75,10 +75,15 @@ export default function ExperiencesPage() {
     'min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-base focus:outline-2 focus:outline-offset-1 focus:outline-teal-600'
 
   return (
+    // スマホは縦に1列。PC幅では、左に絞り込み、右に一覧を並べる。
     <div className="space-y-4">
       <h1 className="text-xl font-bold text-slate-900">体験を探す</h1>
 
-      <section aria-label="絞り込み" className="space-y-3 rounded-2xl bg-slate-50 p-3">
+      <div className="space-y-4 lg:grid lg:grid-cols-[16rem_1fr] lg:items-start lg:gap-8 lg:space-y-0">
+      <section
+        aria-label="絞り込み"
+        className="space-y-3 rounded-2xl bg-slate-50 p-3 lg:sticky lg:top-32"
+      >
         <div className="flex flex-wrap gap-2">
           <FilterToggle
             pressed={filters.kids_ok === true}
@@ -180,7 +185,7 @@ export default function ExperiencesPage() {
         {query.data && query.data.length > 0 && (
           <div className="space-y-3">
             <p className="text-sm text-slate-600">{query.data.length}件の体験</p>
-            <ul className="space-y-4">
+            <ul className="grid gap-4 sm:grid-cols-2">
               {query.data.map((experience) => (
                 <li key={experience.id}>
                   <ExperienceCard experience={experience} />
@@ -189,6 +194,7 @@ export default function ExperiencesPage() {
             </ul>
           </div>
         )}
+      </div>
       </div>
     </div>
   )

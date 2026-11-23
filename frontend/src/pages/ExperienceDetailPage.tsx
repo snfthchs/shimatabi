@@ -113,14 +113,16 @@ function ExperienceDetailView({
   }
 
   return (
-    <div className="space-y-5">
-      <Photo
-        src={experience.photo_url}
-        alt={experience.title}
-        className="aspect-video w-full rounded-2xl"
-      />
+    // スマホは縦に1列。PC幅では、左に写真と説明、右に予約のフォームを並べる。
+    <div className="space-y-5 lg:grid lg:grid-cols-[1fr_24rem] lg:items-start lg:gap-10 lg:space-y-0">
+      <div className="space-y-5">
+        <Photo
+          src={experience.photo_url}
+          alt={experience.title}
+          className="aspect-video w-full rounded-2xl"
+        />
 
-      <section className="space-y-2">
+        <section className="space-y-2">
         <p className="text-xs text-slate-500">
           {categoryLabels[experience.category] ?? experience.category}・{experience.area}・
           {experience.business_name}
@@ -137,9 +139,14 @@ function ExperienceDetailView({
           <br />
           {experience.meeting_point}
         </p>
-      </section>
+        </section>
+      </div>
 
-      <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="space-y-5 lg:rounded-2xl lg:border lg:border-slate-200 lg:p-5"
+      >
         <h2 className="text-lg font-bold text-slate-900">予約する</h2>
 
         {notice && <ErrorNotice>{notice}</ErrorNotice>}
@@ -204,7 +211,7 @@ function ExperienceDetailView({
           </p>
         </section>
 
-        <div className="sticky bottom-0 -mx-4 space-y-1 border-t border-slate-200 bg-white px-4 py-3">
+        <div className="sticky bottom-0 -mx-4 space-y-1 border-t border-slate-200 bg-white px-4 py-3 lg:static lg:mx-0 lg:border-0 lg:px-0 lg:pb-0">
           {selectedSlot ? (
             <p className="text-xs text-slate-600">
               {formatDateTime(selectedSlot.starts_at)}・{partySize}名・

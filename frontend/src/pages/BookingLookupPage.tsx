@@ -48,7 +48,7 @@ export default function BookingLookupPage() {
   const otherError = error && !notFound && !(error instanceof ApiError && error.status === 422)
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-xl space-y-5">
       <section className="space-y-1">
         <h1 className="text-xl font-bold text-slate-900">予約の確認</h1>
         <p className="text-sm text-slate-600">
