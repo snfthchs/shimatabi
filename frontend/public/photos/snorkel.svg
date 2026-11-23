@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7dd3fc"/>
+      <stop offset="1" stop-color="#e0f2fe"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#sky)"/>
+  <circle cx="660" cy="95" r="48" fill="#fde68a"/>
+  <path d="M0 230 Q100 200 200 230 T400 230 T600 230 T800 230 V450 H0 Z" fill="#38bdf8"/>
+  <path d="M0 290 Q100 260 200 290 T400 290 T600 290 T800 290 V450 H0 Z" fill="#0ea5e9"/>
+  <path d="M0 350 Q100 320 200 350 T400 350 T600 350 T800 350 V450 H0 Z" fill="#0284c7"/>
+  <g fill="#f97316">
+    <ellipse cx="260" cy="330" rx="34" ry="18"/>
+    <path d="M292 330 L322 312 L322 348 Z"/>
+    <ellipse cx="520" cy="390" rx="28" ry="15"/>
+    <path d="M548 390 L574 375 L574 405 Z"/>
+  </g>
+  <g fill="#fbbf24">
+    <ellipse cx="420" cy="300" rx="22" ry="12"/>
+    <path d="M442 300 L462 288 L462 312 Z"/>
+  </g>
+</svg>
