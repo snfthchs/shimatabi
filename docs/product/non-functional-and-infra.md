@@ -134,7 +134,7 @@ flowchart LR
 | APIの実行 | FastAPIのコンテナ実行 | Google Cloud Run、AWS App Runner、AWS ECS Fargate、Fly.io、Render | 運用の軽さ、アクセスが少ない間のコスト、国内リージョン、ほかの部品との相性 |
 | データベース | マネージドPostgreSQL | Neon、Supabase、Google Cloud SQL、Amazon RDS | 自動バックアップ、国内リージョン、接続数の制限、料金体系 |
 | 画像の保存 | 体験の写真 | Amazon S3、Google Cloud Storage、Cloudflare R2 | 配信用CDNとの連携、料金（転送量）、画像の変換機能 |
-| 認証 | 事業者・運営のログイン | 自前のセッションを継続、Auth0、Amazon Cognito、Supabase Auth、Firebase Authentication | 運用の手間、多要素認証の対応、ほかの部品との相性、乗り換えやすさ |
+| 認証 | 事業者のログイン | 自前のセッションを継続、Auth0、Amazon Cognito、Supabase Auth、Firebase Authentication | 運用の手間、多要素認証の対応、ほかの部品との相性、乗り換えやすさ |
 | 秘密情報・鍵 | 暗号化の鍵、APIキー | AWS KMS と Secrets Manager、Google Cloud の Secret Manager と Cloud KMS | 鍵のローテーション、アクセス権の管理、実行基盤との相性 |
 | ログ・監視 | 障害の検知 | 実行基盤が持つ標準のログと監視、Sentry | 個人情報をログに出さない設定のしやすさ、通知の仕組み |
 
