@@ -1,0 +1,6 @@
+dist
+node_modules
+package-lock.json
+# バックエンドのOpenAPIから生成するファイル（手で編集しない）
+src/api/schema.d.ts
+src/api/openapi.json

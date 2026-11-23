@@ -15,8 +15,9 @@ from app.ai.provider import ConciergeProvider
 from app.config import Settings
 
 # LLMの応答を待つ時間（秒）と、失敗したときの再試行の回数。デモで、長く待たせないために短くする。
-LLM_TIMEOUT_SECONDS = 20.0
-LLM_MAX_RETRIES = 1
+# 再試行を入れると、最悪の待ちが倍になる。失敗はモックに切り替えるので、再試行はしない。
+LLM_TIMEOUT_SECONDS = 15.0
+LLM_MAX_RETRIES = 0
 
 
 @lru_cache(maxsize=4)

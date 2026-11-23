@@ -45,3 +45,24 @@ def test_error_body_includes_details_only_when_given() -> None:
     )
 
     assert body["error"]["details"] == [{"field": "a", "type": "missing"}]
+
+
+def test_an_unexpected_exception_returns_the_unified_500_without_its_details() -> None:
+    app = FastAPI()
+    install_error_handlers(app)
+
+    @app.get("/crash")
+    def crash() -> None:
+        raise RuntimeError("secret-detail 090-1234-5678")
+
+    response = TestClient(app, raise_server_exceptions=False).get("/crash")
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "error": {
+            "code": "INTERNAL_ERROR",
+            "message": "サーバーでエラーが発生しました。しばらくしてから、もう一度お試しください。",
+        }
+    }
+    assert "secret-detail" not in response.text
+    assert "090-1234-5678" not in response.text

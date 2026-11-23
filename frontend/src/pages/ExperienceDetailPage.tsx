@@ -59,7 +59,9 @@ function ExperienceDetailView({
   const requestedSlotId = pickedSlotId ?? (Number(searchParams.get('slot')) || null)
   const selectedSlot =
     experience.slots.find((slot) => slot.id === requestedSlotId && !slot.is_full) ?? null
-  const maxPartySize = selectedSlot ? Math.min(selectedSlot.remaining, MAX_PARTY_SIZE) : MAX_PARTY_SIZE
+  const maxPartySize = selectedSlot
+    ? Math.min(selectedSlot.remaining, MAX_PARTY_SIZE)
+    : MAX_PARTY_SIZE
   const partySize = Math.min(Math.max(partySizeInput, 1), maxPartySize)
   const isInstant = experience.confirmation_mode === 'instant'
 
@@ -123,22 +125,22 @@ function ExperienceDetailView({
         />
 
         <section className="space-y-2">
-        <p className="text-xs text-slate-500">
-          {categoryLabels[experience.category] ?? experience.category}・{experience.area}・
-          {experience.business_name}
-        </p>
-        <h1 className="text-xl font-bold text-slate-900">{experience.title}</h1>
-        <ExperienceBadges experience={experience} />
-        <p className="text-sm text-slate-700">
-          <span className="text-lg font-bold">{formatYen(experience.price_yen)}</span>
-          <span className="text-slate-500">／人・約{experience.duration_minutes}分</span>
-        </p>
-        <p className="text-sm leading-relaxed text-slate-700">{experience.description}</p>
-        <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          <span className="font-bold">📍 集合場所</span>
-          <br />
-          {experience.meeting_point}
-        </p>
+          <p className="text-xs text-slate-500">
+            {categoryLabels[experience.category] ?? experience.category}・{experience.area}・
+            {experience.business_name}
+          </p>
+          <h1 className="text-xl font-bold text-slate-900">{experience.title}</h1>
+          <ExperienceBadges experience={experience} />
+          <p className="text-sm text-slate-700">
+            <span className="text-lg font-bold">{formatYen(experience.price_yen)}</span>
+            <span className="text-slate-500">／人・約{experience.duration_minutes}分</span>
+          </p>
+          <p className="text-sm leading-relaxed text-slate-700">{experience.description}</p>
+          <p className="rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+            <span className="font-bold">📍 集合場所</span>
+            <br />
+            {experience.meeting_point}
+          </p>
         </section>
       </div>
 
@@ -242,7 +244,10 @@ export default function ExperienceDetailPage() {
   const experienceId = /^\d+$/.test(id ?? '') ? Number(id) : null
   const query = useExperience(experienceId)
 
-  if (experienceId === null || (query.isError && query.error instanceof ApiError && query.error.status === 404)) {
+  if (
+    experienceId === null ||
+    (query.isError && query.error instanceof ApiError && query.error.status === 404)
+  ) {
     return (
       <div className="space-y-3 py-8 text-center">
         <h1 className="text-lg font-bold text-slate-900">体験が見つかりません</h1>

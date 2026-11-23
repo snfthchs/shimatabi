@@ -29,6 +29,8 @@ export function useLogin() {
     mutationFn: (body: LoginRequest) =>
       apiRequest<Me>('/api/admin/login', { method: 'POST', body: JSON.stringify(body) }),
     onSuccess: (me) => {
+      // ログアウトしないまま別の事業者が入っても、前の事業者のデータが見えないよう、先に捨てる
+      queryClient.removeQueries({ queryKey: ['admin'] })
       queryClient.setQueryData(ME_KEY, me)
     },
   })
