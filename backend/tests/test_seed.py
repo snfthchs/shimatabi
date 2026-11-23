@@ -22,8 +22,8 @@ from app.seed import DAYS, DEMO_PASSWORD, SeedError, run_seed
 # 火曜日の午前10時（日本時間）に、シードを実行したものとする。
 NOW = datetime.datetime(2026, 11, 24, 10, 0, tzinfo=JST)
 
-DEVELOPMENT = Settings(app_env="development", ai_provider="mock", pii_encryption_key=None)
-PRODUCTION = Settings(app_env="production", ai_provider="mock", pii_encryption_key=None)
+DEVELOPMENT = Settings(app_env="development", pii_encryption_key=None)
+PRODUCTION = Settings(app_env="production", pii_encryption_key=None)
 
 # 予約番号に使う文字（紛らわしい0・1・I・Oを除いた32種）で、10文字
 BOOKING_NUMBER_PATTERN = re.compile(r"^[2-9A-HJ-NP-Z]{10}$")

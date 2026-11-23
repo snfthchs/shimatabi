@@ -64,8 +64,8 @@ CurrentUserDep = Annotated[BusinessUser, Depends(get_current_business_user)]
 
 
 def get_concierge_provider() -> ConciergeProvider:
-    """環境変数 `AI_PROVIDER` で選んだ、AIプロバイダー。テストでは、差し替えられる。"""
-    return get_provider(get_settings().ai_provider)
+    """設定（`ANTHROPIC_API_KEY` の有無）で選んだ、AIプロバイダー。テストでは、差し替えられる。"""
+    return get_provider(get_settings())
 
 
 ProviderDep = Annotated[ConciergeProvider, Depends(get_concierge_provider)]
