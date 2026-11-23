@@ -10,12 +10,14 @@ from app.models import (
     Booking,
     BookingStatus,
     Business,
+    BusinessUser,
     Category,
     ConfirmationMode,
     Experience,
     Slot,
     SlotStatus,
 )
+from app.passwords import hash_password
 
 
 def create_business(session: Session, name: str = "テスト事業者") -> Business:
@@ -23,6 +25,20 @@ def create_business(session: Session, name: str = "テスト事業者") -> Busin
     session.add(business)
     session.flush()
     return business
+
+
+def create_business_user(
+    session: Session,
+    business: Business,
+    login_id: str = "demo-owner",
+    password: str = "correct-horse-battery",
+) -> BusinessUser:
+    user = BusinessUser(
+        business_id=business.id, login_id=login_id, password_hash=hash_password(password)
+    )
+    session.add(user)
+    session.flush()
+    return user
 
 
 def create_experience(session: Session, business: Business, **overrides: Any) -> Experience:

@@ -4,7 +4,7 @@
 
 何を作り、何を見送ったかは、[MVPスコープ](docs/product/mvp-scope.md)にある。設計の全体は `docs/product/` と `docs/adr/` にまとめている。
 
-> 現在は、データモデルとシードデータ（Issue B）まで。APIの機能と画面は、Issue C 以降で追加する。
+> 現在は、事業者のログインと認可（Issue C）まで。体験・予約のAPI、AIコンシェルジュ、画面は、Issue D 以降で追加する。
 
 ## 必要なもの
 - Python 3.12
@@ -64,6 +64,17 @@ npm --prefix frontend run dev
 ```
 
 画面（http://localhost:5173）に「APIとの接続: つながっています」と出れば、画面とAPIがつながっている。フロントエンドの開発サーバーが `/api` をバックエンドへ転送するので、画面とAPIは同じオリジンで動く。APIの文書は http://localhost:5173/api/docs で見られる。
+
+## 事業者のログイン（API）
+| メソッド | パス | 内容 |
+|---|---|---|
+| POST | `/api/admin/login` | ログインIDとパスワードでログインする。セッションのCookieが設定される |
+| POST | `/api/admin/logout` | ログアウトする（サーバー側のセッションを削除し、Cookieを消す） |
+| GET | `/api/admin/me` | ログイン中の事業者の情報を返す |
+
+- セッションの有効期限は8時間（固定）。Cookie は `HttpOnly`、`SameSite=Lax`（HTTPSのときは `Secure`）。
+- デモ用のアカウントは、シードを投入すると使える（ログインIDとパスワードは、上のシードの節にある）。
+- エラーは、すべて `{"error": {"code": "...", "message": "..."}}` の形で返る。
 
 ## テスト・lint・型チェック
 バックエンド:
