@@ -37,7 +37,7 @@ function FilterToggle({
       onClick={onClick}
       className={`min-h-11 rounded-full border px-4 text-sm font-medium ${
         pressed
-          ? 'border-teal-600 bg-teal-600 text-white'
+          ? 'border-brand-500 bg-brand-500 text-white'
           : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
       }`}
     >
@@ -72,7 +72,7 @@ export default function ExperiencesPage() {
   }
 
   const inputClass =
-    'min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-base focus:outline-2 focus:outline-offset-1 focus:outline-teal-600'
+    'min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 text-base focus:outline-2 focus:outline-offset-1 focus:outline-brand-600'
 
   return (
     // スマホは縦に1列。PC幅では、左に絞り込み、右に一覧を並べる。
@@ -167,7 +167,7 @@ export default function ExperiencesPage() {
           <Link
             to="/experiences"
             replace
-            className="flex min-h-11 items-center justify-center text-sm text-teal-700 underline"
+            className="flex min-h-11 items-center justify-center text-sm text-brand-700 underline"
           >
             条件をリセット
           </Link>

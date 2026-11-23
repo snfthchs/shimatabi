@@ -8,7 +8,7 @@ import SlotChips from './SlotChips'
 // AI相談の提案カード。選んだ理由（DBの事実から、アプリが作ったもの）を見せる。
 export default function SuggestionCard({ suggestion }: { suggestion: Suggestion }) {
   return (
-    <article className="overflow-hidden rounded-2xl border border-teal-200 bg-white shadow-sm">
+    <article className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm">
       <Link to={`/experiences/${suggestion.experience_id}`} className="flex gap-3 p-3">
         <Photo src={suggestion.photo_url} alt={suggestion.title} className="h-20 w-24 shrink-0 rounded-lg" />
         <div className="min-w-0 space-y-1">
@@ -19,7 +19,7 @@ export default function SuggestionCard({ suggestion }: { suggestion: Suggestion 
           </p>
         </div>
       </Link>
-      <p className="mx-3 rounded-lg bg-teal-50 px-3 py-2 text-xs leading-relaxed text-teal-900">
+      <p className="mx-3 rounded-lg bg-brand-50 px-3 py-2 text-xs leading-relaxed text-brand-900">
         {suggestion.reason}
       </p>
       <div className="p-3">

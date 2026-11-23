@@ -29,7 +29,7 @@ export default function BookingCompletePage() {
         </p>
         <Link
           to="/bookings/lookup"
-          className="inline-flex min-h-11 items-center rounded-xl bg-teal-600 px-5 text-sm font-bold text-white"
+          className="inline-flex min-h-11 items-center rounded-xl bg-brand-500 px-5 text-sm font-bold text-white"
         >
           予約を確認する
         </Link>
@@ -61,10 +61,10 @@ export default function BookingCompletePage() {
         <p className="text-sm text-slate-600">{statusDescription(booking.status)}</p>
       </section>
 
-      <section className="space-y-2 rounded-2xl border-2 border-teal-600 bg-teal-50 p-4 text-center">
-        <p className="text-sm font-medium text-teal-900">予約番号（必ず控えてください）</p>
+      <section className="space-y-2 rounded-2xl border-2 border-brand-500 bg-brand-50 p-4 text-center">
+        <p className="text-sm font-medium text-brand-900">予約番号（必ず控えてください）</p>
         <p
-          className="font-mono text-3xl font-bold tracking-widest text-teal-950"
+          className="font-mono text-3xl font-bold tracking-widest text-brand-950"
           aria-label={`予約番号 ${booking.booking_number.split('').join(' ')}`}
         >
           {booking.booking_number}
@@ -72,11 +72,11 @@ export default function BookingCompletePage() {
         <button
           type="button"
           onClick={() => void copyNumber()}
-          className="min-h-11 rounded-lg border border-teal-600 bg-white px-4 text-sm font-medium text-teal-800"
+          className="min-h-11 rounded-lg border border-brand-500 bg-white px-4 text-sm font-medium text-brand-800"
         >
           {copied ? 'コピーしました' : '番号をコピー'}
         </button>
-        <p className="text-xs text-teal-900">
+        <p className="text-xs text-brand-900">
           予約番号と、予約のときの電話番号またはメールアドレスで、予約の状態を確認できます。
         </p>
       </section>
@@ -99,7 +99,7 @@ export default function BookingCompletePage() {
       <div className="flex flex-col gap-2">
         <Link
           to="/bookings/lookup"
-          className="flex min-h-12 items-center justify-center rounded-xl bg-teal-600 text-base font-bold text-white"
+          className="flex min-h-12 items-center justify-center rounded-xl bg-brand-500 text-base font-bold text-white"
         >
           予約の状態を確認する
         </Link>

@@ -14,7 +14,7 @@ export default function SlotChips({ experienceId, slots }: { experienceId: numbe
         <li key={slot.id}>
           <Link
             to={`/experiences/${experienceId}?slot=${slot.id}`}
-            className="flex min-h-11 flex-col justify-center rounded-lg border border-teal-300 bg-white px-3 text-sm text-teal-800 hover:bg-teal-50"
+            className="flex min-h-11 flex-col justify-center rounded-lg border border-brand-200 bg-white px-3 text-sm text-brand-700 hover:bg-brand-50"
           >
             <span className="font-medium">{formatDateTime(slot.starts_at)}</span>
             <span className="text-xs text-slate-500">残り{slot.remaining}席</span>

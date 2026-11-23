@@ -8,7 +8,7 @@ export default function Photo({ src, alt, className = '' }: Props) {
 
   if (failed) {
     return (
-      <div role="img" aria-label={alt} className={`bg-linear-to-br from-teal-100 to-sky-200 ${className}`} />
+      <div role="img" aria-label={alt} className={`bg-linear-to-br from-brand-100 to-sky-200 ${className}`} />
     )
   }
   return (

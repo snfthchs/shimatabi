@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router'
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `flex min-h-11 flex-1 items-center justify-center text-sm font-medium lg:flex-none lg:px-5 ${
-    isActive ? 'border-b-2 border-teal-600 text-teal-700' : 'text-slate-500'
+    isActive ? 'border-b-2 border-brand-500 text-brand-700' : 'text-slate-500'
   }`
 
 // スマホでは全幅の1列。PC幅（lg: 1024px以上）では、中央の枠（max-w-5xl）に広げ、ヘッダーとナビを横に並べる。
@@ -20,10 +20,10 @@ export default function Layout() {
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-5xl lg:flex lg:items-center lg:justify-between lg:px-6">
           <div className="flex items-center justify-between px-4 py-3 lg:gap-4 lg:px-0">
-            <Link to="/" className="text-lg font-bold text-teal-700">
+            <Link to="/" className="text-lg font-bold text-brand-700">
               🌺 シマタビ
             </Link>
-            <span className="text-xs text-slate-500">沖縄の体験予約（仮）</span>
+            <span className="text-xs text-slate-500">沖縄の体験予約</span>
           </div>
           <nav className="flex" aria-label="メニュー">
             <NavLink to="/" end className={navClass}>

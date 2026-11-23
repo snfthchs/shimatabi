@@ -7,7 +7,7 @@ export default function NotFoundPage() {
       <p className="text-sm text-slate-600">URLが違うか、ページが移動した可能性があります。</p>
       <Link
         to="/"
-        className="inline-flex min-h-11 items-center rounded-xl bg-teal-600 px-5 text-sm font-bold text-white"
+        className="inline-flex min-h-11 items-center rounded-xl bg-brand-500 px-5 text-sm font-bold text-white"
       >
         トップへ戻る
       </Link>
