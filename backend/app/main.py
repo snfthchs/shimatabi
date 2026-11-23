@@ -5,10 +5,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.ai.factory import get_provider
+from app.config import get_settings
 from app.crypto import get_cipher
 from app.db import create_db_engine, init_db, make_session_factory
 from app.errors import install_error_handlers
-from app.routers import admin_auth, admin_bookings, bookings, experiences
+from app.routers import admin_auth, admin_bookings, bookings, concierge, experiences
 
 
 @asynccontextmanager
@@ -16,6 +18,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """起動時と終了時の処理。"""
     # 暗号化の鍵が未設定・不正なら、起動の時点で、原因の分かるエラーにする。
     get_cipher()
+    # AI_PROVIDER が、未実装（llm）や不正な値なら、同じく起動の時点でエラーにする。
+    get_provider(get_settings().ai_provider)
     engine = create_db_engine()
     init_db(engine)
     app.state.engine = engine
@@ -40,6 +44,7 @@ app.include_router(admin_auth.router)
 app.include_router(admin_bookings.router)
 app.include_router(experiences.router)
 app.include_router(bookings.router)
+app.include_router(concierge.router)
 
 
 @app.get("/api/health")

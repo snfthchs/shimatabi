@@ -9,6 +9,7 @@ import datetime
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.ai.provider import Conditions
 from app.contact import EMAIL_PATTERN, PHONE_PATTERN, normalize_phone, normalize_text
 
 
@@ -149,3 +150,37 @@ class ContactOut(BaseModel):
     guest_name: str
     guest_phone: str
     guest_email: str
+
+
+class ConciergeRequest(BaseModel):
+    """AIコンシェルジュへの相談。旅行者が自然な文章で書く。"""
+
+    message: str = Field(min_length=1, max_length=500)
+
+    @field_validator("message")
+    @classmethod
+    def _not_blank(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("文章を入力してください。")
+        return value
+
+
+class SuggestionOut(BaseModel):
+    """AIコンシェルジュの提案1件。`reason` は、DBの事実から、アプリが作った理由。"""
+
+    experience_id: int
+    title: str
+    summary: str
+    photo_url: str
+    price_yen: int
+    confirmation_mode: str
+    reason: str
+    slots: list[SlotOut]
+
+
+class ConciergeResponse(BaseModel):
+    """AIコンシェルジュの応答。入力された文章そのものは、含めない。"""
+
+    conditions: Conditions
+    suggestions: list[SuggestionOut]
+    reply: str

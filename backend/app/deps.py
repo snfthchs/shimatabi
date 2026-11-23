@@ -10,8 +10,11 @@ from typing import Annotated
 from fastapi import Cookie, Depends, Request
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.ai.factory import get_provider
+from app.ai.provider import ConciergeProvider
 from app.auth import SESSION_COOKIE_NAME, find_valid_session
 from app.clock import utc_now
+from app.config import get_settings
 from app.errors import UnauthenticatedError
 from app.models import BusinessUser
 
@@ -58,3 +61,11 @@ def get_current_business_user(
 
 
 CurrentUserDep = Annotated[BusinessUser, Depends(get_current_business_user)]
+
+
+def get_concierge_provider() -> ConciergeProvider:
+    """環境変数 `AI_PROVIDER` で選んだ、AIプロバイダー。テストでは、差し替えられる。"""
+    return get_provider(get_settings().ai_provider)
+
+
+ProviderDep = Annotated[ConciergeProvider, Depends(get_concierge_provider)]
