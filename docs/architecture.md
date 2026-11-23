@@ -95,8 +95,8 @@ npm --prefix frontend run gen:api
 
 ### 5.1 LLMのキーの取得と設定
 1. [Claude Console](https://platform.claude.com/) で、アカウントを作る（またはログインする）。
-2. Consoleの Billing で、クレジット（前払い）を買う。購入には、AdminかBillingの役割が要る。**最低の購入額と、日本円で払えるかは、画面で確かめる**（公式の文書では確認できなかった）。クレジットは、購入から1年で失効し、返金はできない。
-3. [Spend limits](https://platform.claude.com/settings/spend-limits) で、月額の上限を、自分で決めておく（到達すると、リクエストが止まる）。
+2. Consoleの Billing で、クレジット（前払い）を買う。購入には、AdminかBillingの役割が要る。**最低の購入額は、約5.5ドル**（人間が、購入の画面で確認した）。日本円で払えるかは、画面で確かめる。クレジットは、購入から1年で失効し、返金はできない。
+3. [Spend limits](https://platform.claude.com/settings/spend-limits) で、月額の上限を、自分で決めておく（到達すると、リクエストが止まる）。購入額より、低めにしてよい。
 4. [API keys](https://platform.claude.com/settings/keys) で、Create key を押し、名前・期限を決め、Linked account を自分にして作る。`sk-ant-` で始まるキーは、**作ったときに1度だけ**表示される。その場でコピーする。
 5. `.env` に、`ANTHROPIC_API_KEY=` に続けて、キーを書く（引用符は不要）。`.env` は、コミットしない。キーを、チャット・Issue・コミットに貼らない。漏れたときは、Consoleで、そのキーを削除して、作り直す。
 6. 動作を確かめる。送るのは、固定の例文だけで、料金は、1円もかからない程度。
