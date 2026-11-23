@@ -15,3 +15,10 @@ export type BookingStatusOut = Schemas['BookingStatusOut']
 export type ConciergeResponse = Schemas['ConciergeResponse']
 export type Suggestion = Schemas['SuggestionOut']
 export type Category = Schemas['Category']
+
+// 事業者向け
+export type LoginRequest = Schemas['LoginRequest']
+export type Me = Schemas['MeOut']
+export type AdminSlot = Schemas['AdminSlotOut']
+export type AdminBooking = Schemas['AdminBookingOut']
+export type Contact = Schemas['ContactOut']

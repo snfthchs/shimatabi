@@ -43,7 +43,7 @@
 | `backend/app/` | FastAPIのアプリ。`main.py` が入り口、`config.py` が環境変数の設定、`db.py` がDB接続と日時の型、`models.py` がデータモデル、`crypto.py` が個人情報の暗号化、`passwords.py` がパスワードのハッシュ化、`seed.py` がデモ用データ、`errors.py` が統一したエラー、`deps.py` が共通の依存（DBセッション・現在時刻・ログイン中の事業者）、`auth.py` がログインセッション、`scoping.py` が自社のデータに絞る条件、`routers/` が各APIのルーター、`services/` が予約・体験検索の処理、`schemas.py` がAPIの入出力、`masking.py` が個人情報のマスク、`contact.py` が連絡先の正規化と照合、`ai/` がAIコンシェルジュのプロバイダー（約束事、ルールベースのモック、`AI_PROVIDER` で選ぶ部品） |
 | `backend/tests/` | バックエンドのテスト |
 | `backend/scripts/` | 補助スクリプト（`dump_openapi.py` は、OpenAPIの定義をJSONで出力する。起動も鍵も不要） |
-| `frontend/src/` | Reactのアプリ。`main.tsx` が入り口（`QueryClient` と `BrowserRouter`）、`App.tsx` がルート、`pages/` が画面（旅行者向け）、`components/` が部品、`api/` がAPI呼び出し（`client.ts` が `fetch` の包み、`hooks.ts` がTanStack Queryのフック、`types.ts` が型の別名、`schema.d.ts` と `openapi.json` が生成物）、`lib/` が日時・金額の整形と入力検証 |
+| `frontend/src/` | Reactのアプリ。`main.tsx` が入り口（`QueryClient` と `BrowserRouter`）、`App.tsx` がルート、`pages/` が画面（旅行者向けと、事業者向けの `Admin*`）、`components/` が部品、`api/` がAPI呼び出し（`client.ts` が `fetch` の包み、`hooks.ts` と `adminHooks.ts`（事業者向け）がTanStack Queryのフック、`types.ts` が型の別名、`schema.d.ts` と `openapi.json` が生成物）、`lib/` が日時・金額の整形と入力検証 |
 | `docs/product/` | プロダクトの方針・設計（MVPスコープ、非機能・インフラ、設計の概要、テスト計画） |
 | `docs/adr/` | 設計判断の記録 |
 
@@ -57,6 +57,7 @@
 - **エラーは、統一した形で返す**（`docs/product/design-overview.md` の4.4節）。`app/errors.py` の `AppError`（`UnauthenticatedError`、`NotFoundError` など）を使う。入力された値は、個人情報を含みうるので、エラーに含めない。
 - **AIには、検索も予約も任せない。** AIプロバイダー（モック／LLM）は差し替えられる構造にする（`app/ai/provider.py` の約束事）。AIが担当するのは、条件の抽出と返答文の生成だけ。検索は `app/services/experience_search.py`、流れは `app/services/concierge.py` で行い、提案の理由は、DBの事実からアプリが作る。AIが出した条件は、`Conditions` で検証してから使う。旅行者の文章は、ログに残さず、応答にも含めない。
 - **フロントエンドのAPIの型は、生成物を使い、手で編集しない。** `frontend/src/api/schema.d.ts` と `openapi.json` は、バックエンドのOpenAPIから `npm --prefix frontend run gen:api` で生成する。APIの入出力を変えたら、生成し直してコミットする。型は `api/types.ts` の別名を使う。
+- **事業者の画面（`/admin`）の連絡先（平文）は、TanStack Queryのキャッシュに入れない。** 「連絡先を表示」は、`useQuery` ではなく `useMutation`（`api/adminHooks.ts` の `useRevealContact`）で取得し、結果は、その行の部品の状態にだけ持つ。ログアウトのときは、`['admin']` のキャッシュを捨てる。
 - **フロントエンドは、個人情報（氏名・電話・メール）を、URL・`localStorage`・`sessionStorage` に残さない。** 予約の完了画面へは、ルーターの `state` だけで渡す。日時は、UTCで受け取り、画面で日本時間に直す（`lib/format.ts`）。体験の写真は、仮の自作イラストで、`frontend/public/photos/` にある。
 - **秘密情報（鍵、APIキー）は `.env` に置き、コミットしない。** シードのデータは架空にし、本番環境（`APP_ENV=production`）では実行しない。
 - **P0の機能（定員、認可、個人情報、予約の流れ）は、時間が足りなくても縮小しない**（`docs/product/mvp-scope.md`）。
