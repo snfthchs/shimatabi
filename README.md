@@ -4,7 +4,7 @@
 
 何を作り、何を見送ったかは、[MVPスコープ](docs/product/mvp-scope.md)にある。設計の全体は `docs/product/` と `docs/adr/` にまとめている。
 
-> 現在は、事業者のログインと認可（Issue C）まで。体験・予約のAPI、AIコンシェルジュ、画面は、Issue D 以降で追加する。
+> 現在は、体験・予約のAPI（Issue D）まで。AIコンシェルジュと画面は、Issue E 以降で追加する。
 
 ## 必要なもの
 - Python 3.12
@@ -75,6 +75,29 @@ npm --prefix frontend run dev
 - セッションの有効期限は8時間（固定）。Cookie は `HttpOnly`、`SameSite=Lax`（HTTPSのときは `Secure`）。
 - デモ用のアカウントは、シードを投入すると使える（ログインIDとパスワードは、上のシードの節にある）。
 - エラーは、すべて `{"error": {"code": "...", "message": "..."}}` の形で返る。
+
+## 体験・予約のAPI
+旅行者向け（ログイン不要）:
+
+| メソッド | パス | 内容 |
+|---|---|---|
+| GET | `/api/experiences` | 体験の一覧。クエリ: `date`（日本時間の日付）、`party_size`、`kids_ok`、`rain_ok`、`area`、`category`、`max_minutes_from_naha`。条件に合う受付中の便を持つ体験だけを返す |
+| GET | `/api/experiences/{id}` | 体験の詳細と、これから始まる受付中の便（満席は残席0で含む） |
+| POST | `/api/bookings` | 予約を作る（201）。氏名・電話・メールは、すべて必須。即時確定の体験は確定、承認制の体験は承認待ちになる |
+| POST | `/api/bookings/lookup` | 予約番号と連絡先（電話またはメール）で、予約の状態を確認する。連絡先は個人情報なので、URLではなくPOSTの本文で送る |
+
+事業者向け（要ログイン。自社のデータだけ。他社のデータは404）:
+
+| メソッド | パス | 内容 |
+|---|---|---|
+| GET | `/api/admin/slots` | 自社の便と、便ごとの予約の状況（承認待ち・確定の人数） |
+| GET | `/api/admin/bookings` | 自社の予約の一覧。氏名・電話・メールは、サーバー側でマスクして返す |
+| POST | `/api/admin/bookings/{id}/approve` | 承認待ちの予約を承認する |
+| POST | `/api/admin/bookings/{id}/reject` | 承認待ちの予約を却下し、押さえていた定員を解放する |
+| GET | `/api/admin/bookings/{id}/contact` | 1件の予約の連絡先を、平文で返す（「連絡先を表示」） |
+
+- **定員は、条件付きUPDATEで守る**。承認待ちの予約も、定員に数える。満席・開始後・中止の便への予約は、409（`SLOT_UNAVAILABLE`）。すでに処理した予約の承認・却下は、409（`INVALID_STATE`）。
+- 日時のレスポンスは、UTC（`Z` つき）。画面が、日本時間に直して表示する。
 
 ## テスト・lint・型チェック
 バックエンド:
