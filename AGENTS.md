@@ -11,7 +11,8 @@
 |---|---|
 | フロントエンド | React、TypeScript、Vite、Tailwind CSS（`frontend/`） |
 | バックエンド | Python 3.12、FastAPI（`backend/`） |
-| データベース | SQLite（ORM経由。Issue B で追加する） |
+| データベース | SQLite（SQLAlchemy 2.x のORM経由。ファイルは `backend/data/shimatabi.db`） |
+| 暗号化・ハッシュ | 個人情報は Fernet（`cryptography`）、パスワードは argon2id（`argon2-cffi`） |
 | Pythonのパッケージ管理 | `pip` と `venv`（`uv` が未導入で、新しく入れる手間を避けるため） |
 | フロントのパッケージ管理 | `npm`（`pnpm` が未導入のため） |
 | lint・型チェック | バックエンドは `ruff`・`mypy`、フロントエンドは `eslint`・`tsc` |
@@ -32,11 +33,14 @@
 | ビルド（フロントエンド） | `npm --prefix frontend run build` |
 | ローカル起動（バックエンド） | `cd backend && .venv/bin/uvicorn app.main:app --reload --env-file ../.env`（http://localhost:8000） |
 | ローカル起動（フロントエンド） | `npm --prefix frontend run dev`（http://localhost:5173。`/api` はバックエンドへ転送される） |
+| デモ用データの投入 | `cd backend && .venv/bin/python -m app.seed --reset`（`APP_ENV=production` では実行できない） |
+
+バックエンドの起動には、`.env` の `PII_ENCRYPTION_KEY`（個人情報の暗号化の鍵）が必要である。作り方は `README.md` にある。AIは `.env` を読み書きできないので、確認のときは、使い捨ての鍵を環境変数で渡す。
 
 ## ディレクトリ構成
 | 場所 | 役割 |
 |---|---|
-| `backend/app/` | FastAPIのアプリ（`main.py` が入り口、`config.py` が環境変数の設定） |
+| `backend/app/` | FastAPIのアプリ。`main.py` が入り口、`config.py` が環境変数の設定、`db.py` がDB接続と日時の型、`models.py` がデータモデル、`crypto.py` が個人情報の暗号化、`passwords.py` がパスワードのハッシュ化、`seed.py` がデモ用データ |
 | `backend/tests/` | バックエンドのテスト |
 | `frontend/src/` | Reactのアプリ |
 | `docs/product/` | プロダクトの方針・設計（MVPスコープ、非機能・インフラ、設計の概要、テスト計画） |

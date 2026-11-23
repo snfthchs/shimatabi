@@ -4,7 +4,7 @@
 
 何を作り、何を見送ったかは、[MVPスコープ](docs/product/mvp-scope.md)にある。設計の全体は `docs/product/` と `docs/adr/` にまとめている。
 
-> 現在は、雛形（Issue A）の段階で、画面とAPIの疎通だけが確認できる。機能は、Issue B 以降で追加する。
+> 現在は、データモデルとシードデータ（Issue B）まで。APIの機能と画面は、Issue C 以降で追加する。
 
 ## 必要なもの
 - Python 3.12
@@ -24,6 +24,29 @@ npm --prefix frontend install
 ```bash
 cp .env.example .env
 ```
+
+予約者の個人情報（氏名・電話・メール）を暗号化する鍵が必要である。次のコマンドで鍵を作り、出力された文字列を、`.env` の `PII_ENCRYPTION_KEY=` のあとに書く。
+
+```bash
+backend/.venv/bin/python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+- 鍵がないと、バックエンドは起動しない（起動のときに、原因が分かるエラーになる）。
+- 鍵は、コミットしない。鍵をなくすと、暗号化した個人情報は読めなくなる（デモ用のDBは、シードで作り直せる）。
+- 鍵は、カンマ区切りで複数書ける。先頭の鍵で暗号化し、すべての鍵で復号を試す（鍵を入れ替えるときに使う）。
+
+## デモ用データの投入（シード）
+架空の事業者・体験・便・予約を、DBに入れる。`backend/` で実行する。
+
+```bash
+cd backend && .venv/bin/python -m app.seed --reset
+```
+
+- `--reset` は、すべてのテーブルを消して作り直してから投入する。`--reset` なしは、空のDBにだけ投入する。
+- **デモの直前に `--reset` で作り直す**と、今日の午後の便が受付中の状態になる。今日の便は、実行した時刻より後のものだけを作る。
+- 事業者アカウントのログインIDは、`demo-marine`、`demo-craft`、`demo-night`、`demo-food`。パスワードは、架空・デモ専用の固定値で、`backend/app/seed.py` の `DEMO_PASSWORD` にある。
+- `.env` の `APP_ENV=production` のときは、シードを実行できない。
+- DBのファイルは `backend/data/shimatabi.db` にできる（コミットされない）。
 
 ## 起動
 ターミナルを2つ開いて、それぞれで起動する。
