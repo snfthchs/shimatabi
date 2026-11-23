@@ -44,4 +44,5 @@ def search(
         conditions=result.conditions,
         suggestions=[_suggestion_out(suggestion) for suggestion in result.suggestions],
         reply=result.reply,
+        pii_masked=result.pii_masked,
     )

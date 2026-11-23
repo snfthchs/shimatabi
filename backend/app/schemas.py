@@ -184,3 +184,5 @@ class ConciergeResponse(BaseModel):
     conditions: Conditions
     suggestions: list[SuggestionOut]
     reply: str
+    # 個人情報らしき文字列を、AIに渡す前に伏せたか（画面で、旅行者に知らせる）。
+    pii_masked: bool = False

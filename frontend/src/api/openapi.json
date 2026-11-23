@@ -1178,6 +1178,11 @@
           "reply": {
             "type": "string",
             "title": "Reply"
+          },
+          "pii_masked": {
+            "type": "boolean",
+            "title": "Pii Masked",
+            "default": false
           }
         },
         "type": "object",
