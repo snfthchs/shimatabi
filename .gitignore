@@ -1,0 +1,11 @@
+# 秘密情報
+.env
+.env.*
+!.env.example
+
+# ローカル専用のAI設定
+CLAUDE.local.md
+.claude/settings.local.json
+
+# OS
+.DS_Store
