@@ -6,7 +6,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.crypto import get_cipher
-from app.db import create_db_engine, init_db
+from app.db import create_db_engine, init_db, make_session_factory
+from app.errors import install_error_handlers
+from app.routers import admin_auth
 
 
 @asynccontextmanager
@@ -17,6 +19,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     engine = create_db_engine()
     init_db(engine)
     app.state.engine = engine
+    app.state.session_factory = make_session_factory(engine)
     try:
         yield
     finally:
@@ -31,6 +34,9 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
     lifespan=lifespan,
 )
+
+install_error_handlers(app)
+app.include_router(admin_auth.router)
 
 
 @app.get("/api/health")
