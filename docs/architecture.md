@@ -76,7 +76,7 @@ npm --prefix frontend run gen:api
 - ログインの失敗は、IDとパスワードのどちらが違うかを、伝えない。
 
 ## 4. 守っている決まり
-- **定員は、条件付きUPDATEで守る。** 便の `booked_count` は、`backend/app/services/bookings.py` の条件付きUPDATEだけで書き換える。承認待ちの予約も、定員に数える。満席・開始後・中止の便への予約は、409（`SLOT_UNAVAILABLE`）。
+- **定員は、条件付きUPDATEで守る。** 便の `booked_count` は、`backend/app/services/bookings.py` の条件付きUPDATEだけで書き換える（デモ用のシードだけは、予約の人数から計算した値を、最初に入れる）。承認待ちの予約も、定員に数える。満席・開始後・中止の便への予約は、409（`SLOT_UNAVAILABLE`）。
 - **個人情報は、暗号化して保存する。** マスクは、サーバー側で行う。ログ・URL・AIへの入力には、出さない（[ADR 0004](adr/0004-pii-encryption-and-masking.md)）。
 - **事業者向けのAPIは、ログイン中の事業者のデータだけを対象にする**（[ADR 0003](adr/0003-authentication-session.md)）。
 - **DBは、ORMだけで扱い、生SQLを書かない**（[ADR 0002](adr/0002-tech-stack-and-database.md)）。

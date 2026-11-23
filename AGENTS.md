@@ -51,7 +51,7 @@
 設計文書で決めた、実装時に守ること。理由は、それぞれの文書にある。
 
 - **DBはORMだけで扱い、生SQLを書かない。** 定員の更新は、行ロックに頼らず、条件付きUPDATEで行う。日時はUTC・タイムゾーン付きで扱う（`docs/adr/0002-tech-stack-and-database.md`）。
-- **便の `booked_count`（予約済み人数）は、`app/services/bookings.py` の条件付きUPDATEだけで書き換える。** ほかの場所で、読んでから書き込まない（同時に来た予約で、定員を超えたり、人数が食い違ったりするため）。予約の作成・承認・却下は、その関数を使う。
+- **便の `booked_count`（予約済み人数）は、`app/services/bookings.py` の条件付きUPDATEだけで書き換える。** ほかの場所で、読んでから書き込まない（同時に来た予約で、定員を超えたり、人数が食い違ったりするため）。予約の作成・承認・却下は、その関数を使う。例外は、デモ用のシード（`app/seed.py`）だけで、予約の人数から計算した値を、最初に入れる。
 - **個人情報（予約者の氏名・電話・メール）は、暗号化して保存する。** マスクはサーバー側で行い、ログ・URL・AIへの入力に出さない（`docs/adr/0004-pii-encryption-and-masking.md`）。
 - **事業者向けのAPIは、ログイン中の事業者のデータだけを対象にする。** 他の事業者のデータは、存在しないもの（404）として扱う（`docs/adr/0003-authentication-session.md`）。ログイン中の事業者は `app/deps.py` の `CurrentUserDep` で取り出し、データは `app/scoping.py` の関数で絞る。
 - **エラーは、統一した形で返す**（`docs/product/design-overview.md` の4.4節）。`app/errors.py` の `AppError`（`UnauthenticatedError`、`NotFoundError` など）を使う。入力された値は、個人情報を含みうるので、エラーに含めない。
