@@ -18,7 +18,8 @@ class Settings:
     # 実行環境。`production` のときは、シードを実行できない。
     app_env: str
     # 個人情報の暗号化に使う鍵（Fernetの鍵）。未設定なら None。
-    pii_encryption_key: str | None
+    # 秘密情報なので、`repr`（ログやエラーへの表示）には出さない。
+    pii_encryption_key: str | None = field(repr=False)
     # AnthropicのAPIキー。設定されているときだけ、LLMでAIコンシェルジュを動かす。
     # 秘密情報なので、`repr`（ログやエラーへの表示）には出さない。
     anthropic_api_key: str | None = field(default=None, repr=False)
