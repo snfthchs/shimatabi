@@ -4,7 +4,13 @@ import type { Slot } from '../api/types'
 import { formatDateTime } from '../lib/format'
 
 // 体験のカードに載せる、便の候補。押すと、その便を選んだ状態で、詳細の画面へ進む。
-export default function SlotChips({ experienceId, slots }: { experienceId: number; slots: Slot[] }) {
+export default function SlotChips({
+  experienceId,
+  slots,
+}: {
+  experienceId: number
+  slots: Slot[]
+}) {
   if (slots.length === 0) {
     return null
   }
