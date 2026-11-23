@@ -29,9 +29,14 @@ _HYPHEN = r"[-‐‑‒–—―−ー]"
 
 _EMAIL = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(?:\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}")
 _CARD = re.compile(r"(?<![\d])(?:\d[ \-]?){12,18}\d(?![\d])")
-_SEP = rf"(?:{_HYPHEN}|[ ])?"
-_PHONE = re.compile(rf"(?<![\d])(?:\+81[ \-]?)?0?\d{{1,4}}{_SEP}\d{{1,4}}{_SEP}\d{{3,4}}(?![\d])")
-_POSTAL = re.compile(rf"(?:〒\s*)?(?<![\d])\d{{3}}{_HYPHEN}\d{{4}}(?![\d])")
+# 電話番号の区切り。ハイフン・空白・ドットと、市外局番を囲む括弧（`(03)1234-5678`）を許す。
+_SEP = rf"(?:{_HYPHEN}|[ .()]){{0,2}}"
+_PHONE = re.compile(
+    rf"(?<![\d])(?:\+81[ \-]?(?:\(0\))?)?\(?0?\d{{1,4}}{_SEP}\d{{1,4}}{_SEP}\d{{3,4}}(?![\d])"
+)
+# 郵便番号。直後が単位（「500-1000円」など）のときは、金額・人数・時間などなので、伏せない。
+_UNITS = "円人名分時歳"
+_POSTAL = re.compile(rf"(?:〒\s*)?(?<![\d])\d{{3}}{_HYPHEN}\d{{4}}(?![\d]|\s*[{_UNITS}])")
 _TWELVE = re.compile(r"(?<![\d])\d{4}[ \-]?\d{4}[ \-]?\d{4}(?![\d])")
 
 EMAIL_LABEL = "メールアドレス"
@@ -55,9 +60,11 @@ class MaskResult:
 
 def _is_phone(candidate: str) -> bool:
     """電話番号らしいか。数字だけにして、桁数と、先頭の数字で判断する。"""
-    digits = re.sub(r"\D", "", candidate)
     if candidate.lstrip().startswith("+81"):
-        digits = "0" + digits[2:]  # 国番号の81を、国内の先頭の0に直す
+        candidate = candidate.replace("(0)", "")  # `+81(0)90-...` の、省略できる0
+        digits = "0" + re.sub(r"\D", "", candidate)[2:]  # 国番号の81を、国内の先頭の0に直す
+    else:
+        digits = re.sub(r"\D", "", candidate)
     if not digits.startswith("0"):
         return False
     # 固定電話・携帯電話は10〜11桁。
