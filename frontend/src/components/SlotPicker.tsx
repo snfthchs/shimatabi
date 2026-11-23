@@ -37,7 +37,7 @@ export default function SlotPicker({ slots, value, onChange, error }: Props) {
                       slot.is_full
                         ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
                         : selected
-                          ? 'border-teal-600 bg-teal-50 ring-2 ring-teal-600'
+                          ? 'border-brand-500 bg-brand-50 ring-2 ring-brand-500'
                           : 'border-slate-300 bg-white hover:bg-slate-50'
                     }`}
                   >

@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 
-type Tone = 'teal' | 'sky' | 'amber' | 'slate'
+type Tone = 'brand' | 'sky' | 'amber' | 'slate'
 
 const toneClass: Record<Tone, string> = {
-  teal: 'bg-teal-50 text-teal-800 ring-teal-200',
+  brand: 'bg-brand-50 text-brand-800 ring-brand-200',
   sky: 'bg-sky-50 text-sky-800 ring-sky-200',
   amber: 'bg-amber-50 text-amber-900 ring-amber-200',
   slate: 'bg-slate-50 text-slate-700 ring-slate-200',
@@ -33,7 +33,7 @@ export function ExperienceBadges({ experience }: { experience: BadgeSource }) {
   return (
     <div className="flex flex-wrap gap-1.5">
       {experience.kids_ok && (
-        <Badge tone="teal">👶 子連れOK{minAge ? `（${minAge}歳〜）` : ''}</Badge>
+        <Badge tone="brand">👶 子連れOK{minAge ? `（${minAge}歳〜）` : ''}</Badge>
       )}
       {experience.rain_ok && <Badge tone="sky">☔ 雨でもOK</Badge>}
       {experience.confirmation_mode === 'instant' ? (

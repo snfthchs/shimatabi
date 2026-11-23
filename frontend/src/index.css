@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* テーマカラー（沖縄の海の水色）。画面のコードは、sky ではなく brand の名前で参照する。
+   色を変えるときは、この1か所だけを直す。
+   ボタンは、brand-500 の背景に、白い文字にする（コントラスト比は2.8で、小さい文字には、読みにくい。
+   理由は、docs/adr/0006-theme-color.md）。 */
+@theme inline {
+  --color-brand-50: var(--color-sky-50);
+  --color-brand-100: var(--color-sky-100);
+  --color-brand-200: var(--color-sky-200);
+  --color-brand-300: var(--color-sky-300);
+  --color-brand-400: var(--color-sky-400);
+  --color-brand-500: var(--color-sky-500);
+  --color-brand-600: var(--color-sky-600);
+  --color-brand-700: var(--color-sky-700);
+  --color-brand-800: var(--color-sky-800);
+  --color-brand-900: var(--color-sky-900);
+  --color-brand-950: var(--color-sky-950);
+}
+
 @layer base {
   html {
     background-color: var(--color-slate-100);

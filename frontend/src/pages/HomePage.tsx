@@ -47,14 +47,11 @@ export default function HomePage() {
     // スマホは縦に1列。PC幅では、左に入力と条件、右に結果を並べる。
     // 右の結果が高くなっても、左の行が引き伸ばされないよう、最後の行（1fr）に、余りの高さを受けさせる。
     <div className="grid gap-6 lg:grid-cols-2 lg:grid-rows-[auto_auto_auto_1fr] lg:gap-x-10">
-      <section className="space-y-1 lg:col-start-1">
-        <h1 className="text-xl font-bold text-slate-900">
+      <section className="rounded-2xl border border-brand-100 bg-linear-to-br from-brand-50 to-white px-5 py-5 shadow-sm lg:col-start-1">
+        <h1 className="text-xl font-bold text-brand-800">
           <span className="inline-block">沖縄の体験を、</span>
           <span className="inline-block">サクッと探して、予約。</span>
         </h1>
-        <p className="text-sm text-slate-600">
-          行きたい日や人数を、ふつうの言葉で書いてください。AIが、合う体験を探します。
-        </p>
       </section>
 
       <form onSubmit={handleSubmit} className="space-y-3 lg:col-start-1">
@@ -69,7 +66,7 @@ export default function HomePage() {
           rows={3}
           placeholder="例: 明日の午後、那覇から行ける子連れOKの体験は？"
           aria-describedby="concierge-notice"
-          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base focus:outline-2 focus:outline-offset-1 focus:outline-teal-600"
+          className="w-full rounded-xl border border-slate-300 px-3 py-2 text-base focus:outline-2 focus:outline-offset-1 focus:outline-brand-600"
         />
         <p id="concierge-notice" className="text-xs text-slate-500">
           氏名や電話番号など、個人情報は入力しないでください。（{message.length}/{MAX_LENGTH}文字）
@@ -77,7 +74,7 @@ export default function HomePage() {
         <button
           type="submit"
           disabled={!message.trim() || concierge.isPending}
-          className="min-h-12 w-full rounded-xl bg-teal-600 text-base font-bold text-white hover:bg-teal-700 disabled:bg-slate-300"
+          className="min-h-12 w-full rounded-xl bg-brand-500 text-base font-bold text-white hover:bg-brand-600 disabled:bg-slate-300 disabled:text-slate-500"
         >
           {concierge.isPending ? '探しています…' : '探してもらう'}
         </button>
@@ -108,7 +105,7 @@ export default function HomePage() {
         {errorMessage && <ErrorNotice>{errorMessage}</ErrorNotice>}
         {concierge.data && (
           <>
-            <p className="rounded-xl bg-teal-50 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-teal-950">
+            <p className="rounded-xl bg-brand-50 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-brand-950">
               {shownReply}
             </p>
             {concierge.data.suggestions.length > 0 && (
@@ -151,4 +148,4 @@ export default function HomePage() {
 }
 
 const shortcutClass =
-  'flex min-h-11 items-center rounded-full border border-teal-300 bg-white px-4 text-sm font-medium text-teal-800 hover:bg-teal-50'
+  'flex min-h-11 items-center rounded-full border border-brand-200 bg-white px-4 text-sm font-medium text-brand-700 hover:bg-brand-50'

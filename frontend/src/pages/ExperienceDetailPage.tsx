@@ -223,7 +223,7 @@ function ExperienceDetailView({
           <button
             type="submit"
             disabled={createBooking.isPending}
-            className="min-h-12 w-full rounded-xl bg-teal-600 text-base font-bold text-white hover:bg-teal-700 disabled:bg-slate-300"
+            className="min-h-12 w-full rounded-xl bg-brand-500 text-base font-bold text-white hover:bg-brand-600 disabled:bg-slate-300 disabled:text-slate-500"
           >
             {createBooking.isPending
               ? '送信中…'
@@ -246,7 +246,7 @@ export default function ExperienceDetailPage() {
     return (
       <div className="space-y-3 py-8 text-center">
         <h1 className="text-lg font-bold text-slate-900">体験が見つかりません</h1>
-        <Link to="/experiences" className="text-sm text-teal-700 underline">
+        <Link to="/experiences" className="text-sm text-brand-700 underline">
           体験の一覧へ
         </Link>
       </div>

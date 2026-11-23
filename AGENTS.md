@@ -59,6 +59,7 @@
 - **フロントエンドのAPIの型は、生成物を使い、手で編集しない。** `frontend/src/api/schema.d.ts` と `openapi.json` は、バックエンドのOpenAPIから `npm --prefix frontend run gen:api` で生成する。APIの入出力を変えたら、生成し直してコミットする。型は `api/types.ts` の別名を使う。
 - **事業者の画面（`/admin`）の連絡先（平文）は、TanStack Queryのキャッシュに入れない。** 「連絡先を表示」は、`useQuery` ではなく `useMutation`（`api/adminHooks.ts` の `useRevealContact`）で取得し、結果は、その行の部品の状態にだけ持つ。ログアウトのときは、`['admin']` のキャッシュを捨てる。
 - **フロントエンドは、個人情報（氏名・電話・メール）を、URL・`localStorage`・`sessionStorage` に残さない。** 予約の完了画面へは、ルーターの `state` だけで渡す。日時は、UTCで受け取り、画面で日本時間に直す（`lib/format.ts`）。体験の写真は、仮の自作イラストで、`frontend/public/photos/` にある。
+- **フロントエンドのテーマカラー（水色）は、`frontend/src/index.css` の `brand-50〜950` で定義し、画面のコードは `brand-` の名前で参照する。** 色を変えるときは、`index.css` の1か所を直す。ボタンは、`bg-brand-500` に白い文字で、ホバーは `bg-brand-600`、無効のときは `bg-slate-300` に `text-slate-500` にする（理由と、読みやすさの注意は、`docs/adr/0006-theme-color.md`）。
 - **秘密情報（鍵、APIキー）は `.env` に置き、コミットしない。** シードのデータは架空にし、本番環境（`APP_ENV=production`）では実行しない。
 - **P0の機能（定員、認可、個人情報、予約の流れ）は、時間が足りなくても縮小しない**（`docs/product/mvp-scope.md`）。
 

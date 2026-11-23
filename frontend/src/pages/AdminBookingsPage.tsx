@@ -225,7 +225,7 @@ function BookingRow({ booking }: { booking: AdminBooking }) {
                 onClick={() => approve.mutate(booking.id)}
                 disabled={busy}
                 aria-label={`予約 ${booking.booking_number} を承認する`}
-                className="min-h-11 rounded-lg bg-teal-600 px-5 text-sm font-bold text-white hover:bg-teal-700 disabled:bg-slate-300"
+                className="min-h-11 rounded-lg bg-brand-500 px-5 text-sm font-bold text-white hover:bg-brand-600 disabled:bg-slate-300 disabled:text-slate-500"
               >
                 {approve.isPending ? '承認中…' : '承認する'}
               </button>

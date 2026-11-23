@@ -81,7 +81,7 @@ export default function BookingLookupPage() {
         <button
           type="submit"
           disabled={lookup.isPending}
-          className="min-h-12 w-full rounded-xl bg-teal-600 text-base font-bold text-white hover:bg-teal-700 disabled:bg-slate-300"
+          className="min-h-12 w-full rounded-xl bg-brand-500 text-base font-bold text-white hover:bg-brand-600 disabled:bg-slate-300 disabled:text-slate-500"
         >
           {lookup.isPending ? '確認しています…' : '予約を確認する'}
         </button>

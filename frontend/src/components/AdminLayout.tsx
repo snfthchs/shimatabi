@@ -38,7 +38,7 @@ export default function AdminLayout() {
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
           <div>
-            <p className="text-lg font-bold text-teal-700">🌺 シマタビ 事業者の管理</p>
+            <p className="text-lg font-bold text-brand-700">🌺 シマタビ 事業者の管理</p>
             <p className="text-sm text-slate-600">
               {me.data.business.name}（{me.data.business.area}）
             </p>
