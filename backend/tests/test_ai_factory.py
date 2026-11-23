@@ -4,58 +4,71 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
-from app.ai.factory import get_provider
+from app.ai.factory import describe_provider, get_provider
+from app.ai.fallback import FallbackProvider
 from app.ai.mock_provider import MockProvider
 from app.ai.provider import Conditions
-from app.crypto import ConfigurationError
+from app.config import DEFAULT_ANTHROPIC_MODEL, Settings
 from app.deps import get_concierge_provider
 from app.main import app
 from app.models import Category
 
 
-def test_mock_provider_is_selected() -> None:
-    assert isinstance(get_provider("mock"), MockProvider)
+def _settings(api_key: str | None = None, model: str = DEFAULT_ANTHROPIC_MODEL) -> Settings:
+    return Settings(
+        app_env="development",
+        pii_encryption_key=None,
+        anthropic_api_key=api_key,
+        anthropic_model=model,
+    )
 
 
-def test_default_is_mock_when_the_env_var_is_not_set_or_empty(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.delenv("AI_PROVIDER", raising=False)
+def test_mock_provider_is_selected_without_an_api_key() -> None:
+    assert isinstance(get_provider(_settings()), MockProvider)
+
+
+def test_llm_provider_with_a_mock_fallback_is_selected_with_an_api_key() -> None:
+    provider = get_provider(_settings("sk-ant-dummy-for-test"))
+
+    assert isinstance(provider, FallbackProvider)
+
+
+def test_the_same_provider_is_reused_for_the_same_settings() -> None:
+    # 通信の準備と、失敗の記録（待機の時間）を、リクエストをまたいで持つため
+    first = get_provider(_settings("sk-ant-dummy-for-test", "claude-haiku-5-5"))
+    second = get_provider(_settings("sk-ant-dummy-for-test", "claude-haiku-5-5"))
+    other_model = get_provider(_settings("sk-ant-dummy-for-test", "claude-sonnet-5-5"))
+
+    assert first is second
+    assert first is not other_model
+
+
+def test_the_provider_follows_the_env_vars(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     assert isinstance(get_concierge_provider(), MockProvider)
 
-    monkeypatch.setenv("AI_PROVIDER", "")  # `.env.example` をコピーして、空のままの場合
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")  # `.env.example` をコピーして、空のままの場合
     assert isinstance(get_concierge_provider(), MockProvider)
 
-
-def test_llm_provider_is_not_implemented_yet() -> None:
-    with pytest.raises(ConfigurationError, match="llm"):
-        get_provider("llm")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-dummy-for-test")
+    assert isinstance(get_concierge_provider(), FallbackProvider)
 
 
-def test_unknown_provider_is_an_error_without_echoing_the_value() -> None:
-    with pytest.raises(ConfigurationError) as error:
-        get_provider("my-secret-value")
+def test_describe_provider_never_includes_the_api_key() -> None:
+    assert "モック" in describe_provider(_settings())
 
-    assert "my-secret-value" not in str(error.value)
+    text = describe_provider(_settings("sk-ant-secret-value", "claude-sonnet-5-5"))
 
-
-@pytest.mark.parametrize("value", ["llm", "unknown"])
-def test_startup_fails_with_a_clear_error_for_an_unusable_provider(
-    monkeypatch: pytest.MonkeyPatch, value: str
-) -> None:
-    monkeypatch.setenv("AI_PROVIDER", value)
-
-    # 起動のときに、DBを作る前に、エラーになる
-    with pytest.raises(ConfigurationError, match="AI_PROVIDER"), TestClient(app):
-        pass
+    assert "claude-sonnet-5-5" in text
+    assert "sk-ant-secret-value" not in text
 
 
-def test_startup_succeeds_with_the_mock_provider(
+def test_startup_succeeds_without_an_api_key(
     monkeypatch: pytest.MonkeyPatch, tmp_path: object
 ) -> None:
     from app.db import create_db_engine
 
-    monkeypatch.setenv("AI_PROVIDER", "mock")
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     monkeypatch.setattr(
         "app.main.create_db_engine", lambda: create_db_engine(f"sqlite:///{tmp_path}/ai.db")
     )

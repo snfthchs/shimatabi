@@ -74,7 +74,7 @@ def test_list_filters(client: TestClient, catalog: Catalog) -> None:
     ],
 )
 def test_list_rejects_invalid_parameters_with_unified_error(
-    client: TestClient, catalog: Catalog, params: dict[str, object]
+    client: TestClient, catalog: Catalog, params: dict[str, str | int]
 ) -> None:
     response = client.get("/api/experiences", params=params)
 

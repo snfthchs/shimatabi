@@ -1,11 +1,12 @@
 """シマタビ（仮）のAPIの入り口。"""
 
+import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.ai.factory import get_provider
+from app.ai.factory import describe_provider
 from app.config import get_settings
 from app.crypto import get_cipher
 from app.db import create_db_engine, init_db, make_session_factory
@@ -18,8 +19,8 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """起動時と終了時の処理。"""
     # 暗号化の鍵が未設定・不正なら、起動の時点で、原因の分かるエラーにする。
     get_cipher()
-    # AI_PROVIDER が、未実装（llm）や不正な値なら、同じく起動の時点でエラーにする。
-    get_provider(get_settings().ai_provider)
+    # どのAIプロバイダーで動くかを、起動のときに、ログへ出す（キーは出さない）。
+    logging.getLogger("uvicorn.error").info(describe_provider(get_settings()))
     engine = create_db_engine()
     init_db(engine)
     app.state.engine = engine

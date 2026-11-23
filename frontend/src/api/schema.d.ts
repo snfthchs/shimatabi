@@ -456,6 +456,11 @@ export interface components {
             suggestions: components["schemas"]["SuggestionOut"][];
             /** Reply */
             reply: string;
+            /**
+             * Pii Masked
+             * @default false
+             */
+            pii_masked: boolean;
         };
         /**
          * Conditions

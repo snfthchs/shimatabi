@@ -105,6 +105,11 @@ export default function HomePage() {
         {errorMessage && <ErrorNotice>{errorMessage}</ErrorNotice>}
         {concierge.data && (
           <>
+            {concierge.data.pii_masked && (
+              <InfoNotice>
+                電話番号やメールアドレスなどに見える文字列が含まれていたため、AIには送らずに、伏せて探しました。個人情報は入力しないでください。
+              </InfoNotice>
+            )}
             <p className="rounded-xl bg-brand-50 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-brand-950">
               {shownReply}
             </p>

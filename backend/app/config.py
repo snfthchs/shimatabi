@@ -5,7 +5,10 @@
 """
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+# LLMのモデルの既定。もっとも安く、速いモデル。選択肢は、READMEにある。
+DEFAULT_ANTHROPIC_MODEL = "claude-haiku-5-5"
 
 
 @dataclass(frozen=True)
@@ -14,10 +17,13 @@ class Settings:
 
     # 実行環境。`production` のときは、シードを実行できない。
     app_env: str
-    # AIプロバイダー。`mock`（既定）または `llm`。
-    ai_provider: str
     # 個人情報の暗号化に使う鍵（Fernetの鍵）。未設定なら None。
     pii_encryption_key: str | None
+    # AnthropicのAPIキー。設定されているときだけ、LLMでAIコンシェルジュを動かす。
+    # 秘密情報なので、`repr`（ログやエラーへの表示）には出さない。
+    anthropic_api_key: str | None = field(default=None, repr=False)
+    # LLMのモデル。
+    anthropic_model: str = DEFAULT_ANTHROPIC_MODEL
 
 
 def get_settings() -> Settings:
@@ -25,6 +31,7 @@ def get_settings() -> Settings:
     # `.env.example` をコピーして値が空のままでも、既定値になるよう `or` を使う。
     return Settings(
         app_env=os.environ.get("APP_ENV") or "development",
-        ai_provider=os.environ.get("AI_PROVIDER") or "mock",
         pii_encryption_key=os.environ.get("PII_ENCRYPTION_KEY") or None,
+        anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY") or None,
+        anthropic_model=os.environ.get("ANTHROPIC_MODEL") or DEFAULT_ANTHROPIC_MODEL,
     )

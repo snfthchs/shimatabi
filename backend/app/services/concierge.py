@@ -6,6 +6,8 @@
   提案は、必ずDBにある体験と、受付中の便だけになる。
 - **提案の理由は、AIではなく、アプリが、DBの事実から作る**（子連れ可、那覇からの時間、残席など）。
   AIの文章に、事実を作らせない。
+- **AIに渡す前に、旅行者の文章から、個人情報らしき文字列（電話番号・メールなど）を、印に置き換える**
+  （`app.ai.pii_guard`。モックにも、LLMにも、同じ処理を通す。`docs/adr/0007-llm-provider.md`）。
 - AIプロバイダーが失敗したときは、一覧へ誘導する（失敗に備える）。
 - 旅行者の文章は、**ログに残さない**。ログに出すのは、例外の種類だけ。
 """
@@ -16,6 +18,7 @@ from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
 
+from app.ai.pii_guard import mask_personal_info
 from app.ai.provider import Candidate, ConciergeProvider, Conditions, Relaxation
 from app.clock import JST
 from app.models import ConfirmationMode, Experience, Slot
@@ -58,6 +61,8 @@ class ConciergeResult:
     conditions: Conditions
     suggestions: list[Suggestion]
     reply: str
+    # 旅行者の文章に、個人情報らしき文字列があり、AIに渡す前に伏せたか。
+    pii_masked: bool = False
 
 
 def _to_criteria(conditions: Conditions) -> SearchCriteria:
@@ -145,7 +150,9 @@ def run_concierge(
     条件が1つも読み取れないときは、検索せずに、一覧へ誘導する返答だけを返す。
     条件に合う便がないときは、条件を緩める提案（件数のあるものだけ）を返答に含める。
     """
-    conditions = _extract_conditions(provider, message, now)
+    # 個人情報らしき文字列は、AIに渡す前に伏せる。AIには、伏せたあとの文章だけを渡す。
+    masked = mask_personal_info(message)
+    conditions = _extract_conditions(provider, masked.text, now)
 
     suggestions: list[Suggestion] = []
     relaxations: list[Relaxation] = []
@@ -172,4 +179,9 @@ def run_concierge(
         for suggestion in suggestions
     ]
     reply = _compose_reply(provider, conditions, candidates, relaxations)
-    return ConciergeResult(conditions=conditions, suggestions=suggestions, reply=reply)
+    return ConciergeResult(
+        conditions=conditions,
+        suggestions=suggestions,
+        reply=reply,
+        pii_masked=masked.masked,
+    )
