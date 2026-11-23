@@ -175,6 +175,7 @@ def run_concierge(
             title=suggestion.experience.title,
             summary=suggestion.experience.summary,
             reason=suggestion.reason,
+            price_yen=suggestion.experience.price_yen,
         )
         for suggestion in suggestions
     ]

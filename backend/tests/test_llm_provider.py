@@ -87,6 +87,7 @@ CANDIDATE = Candidate(
     title="秘密の洞窟ツアー",
     summary="地元ガイドと歩く、静かな洞窟の概要",
     reason="子連れOK・那覇から約40分・11/24 13:00の便は残り4席",
+    price_yen=6500,
 )
 
 
@@ -236,7 +237,7 @@ def test_client_errors_are_raised_to_the_caller() -> None:
         provider.extract_conditions("…", NOW)
 
 
-# ---- 返答の冒頭の1文 ----
+# ---- 返答の冒頭の文 ----
 
 CONDITIONS = Conditions(date=datetime.date(2026, 11, 25), kids_ok=True)
 
@@ -254,34 +255,80 @@ def test_compose_reply_replaces_only_the_first_line_of_the_template() -> None:
     assert "秘密の洞窟ツアー" in reply
 
 
-def test_compose_reply_sends_only_the_conditions_and_the_count_not_the_candidates() -> None:
+def test_compose_reply_sends_the_conditions_and_only_the_public_fields_of_the_candidates() -> None:
     provider, messages = make_provider(text_response("見つかりました。"))
 
     provider.compose_reply(CONDITIONS, [CANDIDATE], [Relaxation("雨の条件", 2)])
 
     call = messages.calls[0]
-    sent = json.dumps(call["messages"], ensure_ascii=False) + call["system"]
     assert json.loads(call["messages"][0]["content"]) == {
         "読み取った条件": {"date": "2026-11-25", "kids_ok": True},
-        "見つかった件数": 1,
+        "見つかった体験": [
+            {
+                "体験名": "秘密の洞窟ツアー",
+                "要約": "地元ガイドと歩く、静かな洞窟の概要",
+                "理由": "子連れOK・那覇から約40分・11/24 13:00の便は残り4席",
+                "料金（円／人）": 6500,
+            }
+        ],
     }
-    # 体験の名前・概要・理由（DBの内容）は、LLMに渡さない
-    assert CANDIDATE.title not in sent
-    assert CANDIDATE.summary not in sent
-    assert CANDIDATE.reason not in sent
+    # 体験のIDと、条件を緩める提案は、渡さない
+    sent = json.dumps(call["messages"], ensure_ascii=False)
+    assert "experience_id" not in sent
     assert "雨の条件" not in sent
     assert call["output_config"] == {"effort": "low"}
+    assert "従いません" in call["system"]  # 体験の情報の中の指示には、従わない
+    assert "そのまま使います" in call["system"]  # 体験の名前は、変えない
 
 
-def test_compose_reply_for_no_results_keeps_the_relaxation_suggestions() -> None:
-    provider, messages = make_provider(text_response("条件に合う体験は、見つかりませんでした。"))
+def test_compose_reply_sends_every_candidate() -> None:
+    provider, messages = make_provider(text_response("2件、見つかりました。"))
+    second = Candidate(
+        experience_id=2,
+        title="島そば教室",
+        summary="手打ちの体験",
+        reason="雨でも実施",
+        price_yen=4200,
+    )
+
+    provider.compose_reply(CONDITIONS, [CANDIDATE, second], [])
+
+    sent = json.loads(messages.calls[0]["messages"][0]["content"])["見つかった体験"]
+    assert [item["体験名"] for item in sent] == ["秘密の洞窟ツアー", "島そば教室"]
+    assert [item["料金（円／人）"] for item in sent] == [6500, 4200]
+
+
+def test_personal_info_in_the_experience_text_is_masked_before_it_is_sent() -> None:
+    # 事業者が書いた文章に、連絡先が混ざっていても、外へ出さない
+    provider, messages = make_provider(text_response("見つかりました。"))
+    leaky = Candidate(
+        experience_id=3,
+        title="海の体験",
+        summary="お問い合わせは、090-1234-5678 か taro@example.com まで",
+        reason="〒900-0001 の集合場所・子連れOK",
+        price_yen=3000,
+    )
+
+    provider.compose_reply(CONDITIONS, [leaky], [])
+
+    sent = messages.calls[0]["messages"][0]["content"]
+    for secret in ("090-1234-5678", "taro@example.com", "900-0001"):
+        assert secret not in sent
+    assert "[電話番号]" in sent
+    assert "[メールアドレス]" in sent
+    assert "[郵便番号]" in sent
+
+
+def test_compose_reply_does_not_call_the_llm_when_there_are_no_results() -> None:
+    # 0件のとき、「見つかりました」と書く事故を防ぐため、LLMを呼ばず、テンプレートの文を使う
+    provider, messages = make_provider()
     relaxations = [Relaxation("雨の条件", 2)]
 
     reply = provider.compose_reply(CONDITIONS, [], relaxations)
 
-    assert reply.split("\n")[0] == "条件に合う体験は、見つかりませんでした。"
+    assert messages.calls == []
+    assert reply == MockProvider().compose_reply(CONDITIONS, [], relaxations)
     assert "雨の条件を外すと、2件あります" in reply
-    assert json.loads(messages.calls[0]["messages"][0]["content"])["見つかった件数"] == 0
 
 
 def test_compose_reply_does_not_call_the_llm_when_no_condition_was_read() -> None:

@@ -56,8 +56,8 @@
 - **個人情報（予約者の氏名・電話・メール）は、暗号化して保存する。** マスクはサーバー側で行い、ログ・URL・AIへの入力に出さない（`docs/adr/0004-pii-encryption-and-masking.md`）。
 - **事業者向けのAPIは、ログイン中の事業者のデータだけを対象にする。** 他の事業者のデータは、存在しないもの（404）として扱う（`docs/adr/0003-authentication-session.md`）。ログイン中の事業者は `app/deps.py` の `CurrentUserDep` で取り出し、データは `app/scoping.py` の関数で絞る。
 - **エラーは、統一した形で返す**（`docs/product/design-overview.md` の4.4節）。`app/errors.py` の `AppError`（`UnauthenticatedError`、`NotFoundError` など）を使う。入力された値は、個人情報を含みうるので、エラーに含めない。
-- **AIには、検索も予約も任せない。** AIプロバイダー（モック／LLM）は差し替えられる構造にする（`app/ai/provider.py` の約束事）。AIが担当するのは、条件の抽出と返答文（冒頭の1文）の生成だけ。検索は `app/services/experience_search.py`、流れは `app/services/concierge.py` で行い、提案の理由は、DBの事実からアプリが作る。AIが出した条件は、`Conditions` で検証してから使う。旅行者の文章は、ログに残さず、応答にも含めない。
-- **AIに渡すものは、最小にする（`docs/adr/0007-llm-provider.md`）。** LLMに渡すのは、旅行者の文章（個人情報を伏せたあと）と今日の日付、読み取った条件と見つかった件数だけ。体験の内容（DB）と、予約者の個人情報は、渡さない。旅行者の文章は、`app/ai/pii_guard.py` の `mask_personal_info` を通してから、AIに渡す（`run_concierge` の中で行うので、新しいプロバイダーを足しても、通る）。`tests/test_concierge_pii.py` が、これを守らせている。
+- **AIには、検索も予約も任せない。** AIプロバイダー（モック／LLM）は差し替えられる構造にする（`app/ai/provider.py` の約束事）。AIが担当するのは、条件の抽出と返答文（冒頭の1〜2文）の生成だけ。検索は `app/services/experience_search.py`、流れは `app/services/concierge.py` で行い、提案の理由は、DBの事実からアプリが作る。AIが出した条件は、`Conditions` で検証してから使う。旅行者の文章は、ログに残さず、応答にも含めない。
+- **AIに渡すものは、最小にする（`docs/adr/0007-llm-provider.md`）。** LLMに渡すのは、旅行者の文章（個人情報を伏せたあと）と今日の日付、読み取った条件、見つかった体験の体験名・要約・理由・料金（ガードを通す）だけ。予約者の個人情報と、体験の説明文・事業者名・便の詳細は、渡さない。旅行者の文章は、`app/ai/pii_guard.py` の `mask_personal_info` を通してから、AIに渡す（`run_concierge` の中で行うので、新しいプロバイダーを足しても、通る）。`tests/test_concierge_pii.py` が、これを守らせている。
 - **LLMが失敗しても、AI相談は止めない。** `ANTHROPIC_API_KEY` がなければモック、あれば `FallbackProvider` が、失敗のときにモックへ切り替える。APIキーは、`Settings` の `repr` にも、ログにも、エラーにも出さない。
 - **フロントエンドのAPIの型は、生成物を使い、手で編集しない。** `frontend/src/api/schema.d.ts` と `openapi.json` は、バックエンドのOpenAPIから `npm --prefix frontend run gen:api` で生成する。APIの入出力を変えたら、生成し直してコミットする。型は `api/types.ts` の別名を使う。
 - **事業者の画面（`/admin`）の連絡先（平文）は、TanStack Queryのキャッシュに入れない。** 「連絡先を表示」は、`useQuery` ではなく `useMutation`（`api/adminHooks.ts` の `useRevealContact`）で取得し、結果は、その行の部品の状態にだけ持つ。ログアウトのときは、`['admin']` のキャッシュを捨てる。

@@ -51,6 +51,7 @@ class Candidate:
     title: str
     summary: str
     reason: str
+    price_yen: int  # 1人あたりの料金（円）
 
 
 @dataclass(frozen=True)

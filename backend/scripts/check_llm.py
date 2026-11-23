@@ -5,7 +5,7 @@
     cd backend && .venv/bin/python scripts/check_llm.py
 
 送るのは、このファイルに書いた、固定の例文だけである（個人情報は含まない）。
-呼び出しは2回（条件の抽出と、返答の冒頭の1文）。料金は、Haiku 5.5 で、1円もかからない程度。
+呼び出しは2回（条件の抽出と、返答の冒頭の文）。料金は、Haiku 5.5 で、1円もかからない程度。
 
 アプリ本体は、LLMが失敗しても、モックで答えるので、キーが間違っていても動き続ける。
 そのため、キーの設定が合っているかは、このスクリプトで確かめる。
@@ -53,8 +53,9 @@ def main() -> int:
         candidate = Candidate(
             experience_id=0,
             title="（確認用の体験）",
-            summary="確認用",
+            summary="地元ガイドと、浅瀬を歩く体験です。",
             reason="子連れOK・那覇から約40分",
+            price_yen=3000,
         )
         reply = provider.compose_reply(conditions, [candidate], [])
         print("\n[2] 返答（最初の行がLLMの文。残りは、アプリのテンプレート）")
