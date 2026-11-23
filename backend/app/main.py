@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from app.crypto import get_cipher
 from app.db import create_db_engine, init_db, make_session_factory
 from app.errors import install_error_handlers
-from app.routers import admin_auth, bookings, experiences
+from app.routers import admin_auth, admin_bookings, bookings, experiences
 
 
 @asynccontextmanager
@@ -37,6 +37,7 @@ app = FastAPI(
 
 install_error_handlers(app)
 app.include_router(admin_auth.router)
+app.include_router(admin_bookings.router)
 app.include_router(experiences.router)
 app.include_router(bookings.router)
 
