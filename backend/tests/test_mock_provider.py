@@ -120,7 +120,7 @@ def test_reply_with_candidates_summarizes_conditions_and_lists_them() -> None:
         kids_ok=True,
         max_minutes_from_naha=60,
     )
-    candidates = [Candidate(1, "海の体験", "概要", "子連れOK・残り4席")]
+    candidates = [Candidate(1, "海の体験", "概要", "子連れOK・残り4席", 6500)]
 
     reply = provider.compose_reply(conditions, candidates, [])
 
