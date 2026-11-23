@@ -7,5 +7,22 @@
 CLAUDE.local.md
 .claude/settings.local.json
 
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ローカルのDB（SQLite）
+*.db
+*.sqlite
+*.sqlite3
+backend/data/
+
+# フロントエンド
+node_modules/
+dist/
+
 # OS
 .DS_Store

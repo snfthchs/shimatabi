@@ -1,0 +1,13 @@
+# 実行に必要な依存。必要になった Issue で追加する。
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+# DB（ORM）
+sqlalchemy==2.1.9
+# 個人情報の暗号化（Fernet）
+cryptography==50.0.2
+# パスワードのハッシュ化（argon2id）
+argon2-cffi==25.1.0
+# `.env` の読み込み（シードのコマンドで使う。uvicorn は --env-file で読む）
+python-dotenv==1.2.4
+# LLM（AIコンシェルジュ。ANTHROPIC_API_KEY があるときに使う）
+anthropic==2.12.0

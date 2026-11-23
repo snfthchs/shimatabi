@@ -1,0 +1,1723 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "シマタビ API",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/admin/login": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Login",
+        "description": "ログインして、セッションのCookieを設定する。",
+        "operationId": "login_api_admin_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/logout": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Logout",
+        "description": "サーバー側のセッションを削除して、Cookieを消す。ログインしていなくても、エラーにしない。",
+        "operationId": "logout_api_admin_logout_post",
+        "parameters": [
+          {
+            "name": "shimatabi_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shimatabi Session"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/me": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Me",
+        "description": "ログイン中の事業者の情報を返す。",
+        "operationId": "me_api_admin_me_get",
+        "parameters": [
+          {
+            "name": "shimatabi_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shimatabi Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/slots": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Slots",
+        "description": "自社の便の一覧と、便ごとの予約の状況（承認待ち・確定の人数）。`date` は日本時間の日付。",
+        "operationId": "list_slots_api_admin_slots_get",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          },
+          {
+            "name": "shimatabi_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shimatabi Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminSlotOut"
+                  },
+                  "title": "Response List Slots Api Admin Slots Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/bookings": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "List Bookings",
+        "description": "自社の予約の一覧（マスク済み）。便の開始が早い順、申し込みが早い順に並べる。",
+        "operationId": "list_bookings_api_admin_bookings_get",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/BookingStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "slot_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Slot Id"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          },
+          {
+            "name": "shimatabi_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shimatabi Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminBookingOut"
+                  },
+                  "title": "Response List Bookings Api Admin Bookings Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/bookings/{booking_id}/approve": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Approve",
+        "description": "承認待ちの予約を承認する。すでに処理した予約は、409（INVALID_STATE）。",
+        "operationId": "approve_api_admin_bookings__booking_id__approve_post",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Booking Id"
+            }
+          },
+          {
+            "name": "shimatabi_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shimatabi Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminBookingOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/bookings/{booking_id}/reject": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Reject",
+        "description": "承認待ちの予約を却下して、定員を解放する。すでに処理した予約は、409（INVALID_STATE）。",
+        "operationId": "reject_api_admin_bookings__booking_id__reject_post",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Booking Id"
+            }
+          },
+          {
+            "name": "shimatabi_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shimatabi Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminBookingOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/bookings/{booking_id}/contact": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Get Contact",
+        "description": "予約1件の、氏名・電話・メールを、平文で返す（「連絡先を表示」）。",
+        "operationId": "get_contact_api_admin_bookings__booking_id__contact_get",
+        "parameters": [
+          {
+            "name": "booking_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Booking Id"
+            }
+          },
+          {
+            "name": "shimatabi_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Shimatabi Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/experiences": {
+      "get": {
+        "tags": [
+          "experiences"
+        ],
+        "summary": "List Experiences",
+        "description": "条件に合う、受付中の便を持つ体験を返す。`date` は、日本時間の日付。",
+        "operationId": "list_experiences_api_experiences_get",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date"
+            }
+          },
+          {
+            "name": "party_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 1,
+              "title": "Party Size"
+            }
+          },
+          {
+            "name": "kids_ok",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kids Ok"
+            }
+          },
+          {
+            "name": "rain_ok",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Rain Ok"
+            }
+          },
+          {
+            "name": "area",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Area"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Category"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          },
+          {
+            "name": "max_minutes_from_naha",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Max Minutes From Naha"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExperienceListItem"
+                  },
+                  "title": "Response List Experiences Api Experiences Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/experiences/{experience_id}": {
+      "get": {
+        "tags": [
+          "experiences"
+        ],
+        "summary": "Get Experience",
+        "description": "体験の詳細と、これから始まる受付中の便（満席のものも、残席0で含める）を返す。",
+        "operationId": "get_experience_api_experiences__experience_id__get",
+        "parameters": [
+          {
+            "name": "experience_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Experience Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExperienceDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookings": {
+      "post": {
+        "tags": [
+          "bookings"
+        ],
+        "summary": "Create",
+        "description": "予約を作る。即時確定の体験は確定、承認制の体験は承認待ちになる。",
+        "operationId": "create_api_bookings_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingCreated"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookings/lookup": {
+      "post": {
+        "tags": [
+          "bookings"
+        ],
+        "summary": "Lookup",
+        "description": "予約番号と連絡先（電話またはメール）で、予約の状態を確認する。",
+        "operationId": "lookup_api_bookings_lookup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingLookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingStatusOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/concierge/search": {
+      "post": {
+        "tags": [
+          "concierge"
+        ],
+        "summary": "Search",
+        "description": "文章から条件を取り出し、条件に合う、受付中の便を持つ体験を提案する。",
+        "operationId": "search_api_concierge_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConciergeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConciergeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health",
+        "description": "疎通の確認用。画面とAPIがつながっているかを確かめる。",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Api Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AdminBookingOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "booking_number": {
+            "type": "string",
+            "title": "Booking Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "party_size": {
+            "type": "integer",
+            "title": "Party Size"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "slot_id": {
+            "type": "integer",
+            "title": "Slot Id"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starts At"
+          },
+          "experience_title": {
+            "type": "string",
+            "title": "Experience Title"
+          },
+          "guest_name": {
+            "type": "string",
+            "title": "Guest Name"
+          },
+          "guest_phone": {
+            "type": "string",
+            "title": "Guest Phone"
+          },
+          "guest_email": {
+            "type": "string",
+            "title": "Guest Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "booking_number",
+          "status",
+          "party_size",
+          "created_at",
+          "decided_at",
+          "slot_id",
+          "starts_at",
+          "experience_title",
+          "guest_name",
+          "guest_phone",
+          "guest_email"
+        ],
+        "title": "AdminBookingOut",
+        "description": "事業者の管理画面に出す予約。氏名・電話・メールは、マスク済み。"
+      },
+      "AdminSlotOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "experience_id": {
+            "type": "integer",
+            "title": "Experience Id"
+          },
+          "experience_title": {
+            "type": "string",
+            "title": "Experience Title"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starts At"
+          },
+          "capacity": {
+            "type": "integer",
+            "title": "Capacity"
+          },
+          "booked_count": {
+            "type": "integer",
+            "title": "Booked Count"
+          },
+          "pending_count": {
+            "type": "integer",
+            "title": "Pending Count"
+          },
+          "confirmed_count": {
+            "type": "integer",
+            "title": "Confirmed Count"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "experience_id",
+          "experience_title",
+          "starts_at",
+          "capacity",
+          "booked_count",
+          "pending_count",
+          "confirmed_count",
+          "status"
+        ],
+        "title": "AdminSlotOut",
+        "description": "事業者の管理画面に出す、便と予約の状況。"
+      },
+      "BookingCreate": {
+        "properties": {
+          "slot_id": {
+            "type": "integer",
+            "title": "Slot Id"
+          },
+          "party_size": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Party Size"
+          },
+          "guest_name": {
+            "type": "string",
+            "title": "Guest Name"
+          },
+          "guest_phone": {
+            "type": "string",
+            "title": "Guest Phone"
+          },
+          "guest_email": {
+            "type": "string",
+            "title": "Guest Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "slot_id",
+          "party_size",
+          "guest_name",
+          "guest_phone",
+          "guest_email"
+        ],
+        "title": "BookingCreate",
+        "description": "予約の申し込み。氏名・電話・メールは、すべて必須。"
+      },
+      "BookingCreated": {
+        "properties": {
+          "booking_number": {
+            "type": "string",
+            "title": "Booking Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "experience_title": {
+            "type": "string",
+            "title": "Experience Title"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starts At"
+          },
+          "party_size": {
+            "type": "integer",
+            "title": "Party Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "booking_number",
+          "status",
+          "experience_title",
+          "starts_at",
+          "party_size"
+        ],
+        "title": "BookingCreated",
+        "description": "予約の作成結果。予約番号は、あとで予約を確認するときに使う。"
+      },
+      "BookingLookup": {
+        "properties": {
+          "booking_number": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Booking Number"
+          },
+          "contact": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 1,
+            "title": "Contact"
+          }
+        },
+        "type": "object",
+        "required": [
+          "booking_number",
+          "contact"
+        ],
+        "title": "BookingLookup",
+        "description": "予約の確認の申し込み。連絡先は、予約のときに書いた電話番号またはメール。"
+      },
+      "BookingStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "confirmed",
+          "rejected",
+          "cancelled"
+        ],
+        "title": "BookingStatus",
+        "description": "予約の状態。"
+      },
+      "BookingStatusOut": {
+        "properties": {
+          "booking_number": {
+            "type": "string",
+            "title": "Booking Number"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "experience_title": {
+            "type": "string",
+            "title": "Experience Title"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starts At"
+          },
+          "party_size": {
+            "type": "integer",
+            "title": "Party Size"
+          },
+          "meeting_point": {
+            "type": "string",
+            "title": "Meeting Point"
+          }
+        },
+        "type": "object",
+        "required": [
+          "booking_number",
+          "status",
+          "experience_title",
+          "starts_at",
+          "party_size",
+          "meeting_point"
+        ],
+        "title": "BookingStatusOut",
+        "description": "予約の確認の結果。個人情報は含めない。"
+      },
+      "BusinessOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "area"
+        ],
+        "title": "BusinessOut"
+      },
+      "Category": {
+        "type": "string",
+        "enum": [
+          "marine",
+          "craft",
+          "nature",
+          "food"
+        ],
+        "title": "Category",
+        "description": "体験の種類。"
+      },
+      "ConciergeRequest": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "ConciergeRequest",
+        "description": "AIコンシェルジュへの相談。旅行者が自然な文章で書く。"
+      },
+      "ConciergeResponse": {
+        "properties": {
+          "conditions": {
+            "$ref": "#/components/schemas/Conditions"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/SuggestionOut"
+            },
+            "type": "array",
+            "title": "Suggestions"
+          },
+          "reply": {
+            "type": "string",
+            "title": "Reply"
+          },
+          "pii_masked": {
+            "type": "boolean",
+            "title": "Pii Masked",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "conditions",
+          "suggestions",
+          "reply"
+        ],
+        "title": "ConciergeResponse",
+        "description": "AIコンシェルジュの応答。入力された文章そのものは、含めない。"
+      },
+      "Conditions": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "time_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time From"
+          },
+          "time_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time To"
+          },
+          "party_size": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 50.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Party Size"
+          },
+          "kids_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kids Ok"
+          },
+          "rain_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rain Ok"
+          },
+          "area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area"
+          },
+          "max_minutes_from_naha": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Minutes From Naha"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Category"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Conditions",
+        "description": "文章から取り出した、検索条件。すべて省略できる（読み取れなかった条件は、None）。"
+      },
+      "ContactOut": {
+        "properties": {
+          "guest_name": {
+            "type": "string",
+            "title": "Guest Name"
+          },
+          "guest_phone": {
+            "type": "string",
+            "title": "Guest Phone"
+          },
+          "guest_email": {
+            "type": "string",
+            "title": "Guest Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "guest_name",
+          "guest_phone",
+          "guest_email"
+        ],
+        "title": "ContactOut",
+        "description": "「連絡先を表示」で返す、平文の連絡先。"
+      },
+      "ExperienceDetail": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "price_yen": {
+            "type": "integer",
+            "title": "Price Yen"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "kids_ok": {
+            "type": "boolean",
+            "title": "Kids Ok"
+          },
+          "min_age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Age"
+          },
+          "rain_ok": {
+            "type": "boolean",
+            "title": "Rain Ok"
+          },
+          "minutes_from_naha": {
+            "type": "integer",
+            "title": "Minutes From Naha"
+          },
+          "confirmation_mode": {
+            "type": "string",
+            "title": "Confirmation Mode"
+          },
+          "photo_url": {
+            "type": "string",
+            "title": "Photo Url"
+          },
+          "business_name": {
+            "type": "string",
+            "title": "Business Name"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/SlotOut"
+            },
+            "type": "array",
+            "title": "Slots"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "meeting_point": {
+            "type": "string",
+            "title": "Meeting Point"
+          },
+          "map_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Map Url"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "category",
+          "area",
+          "price_yen",
+          "duration_minutes",
+          "kids_ok",
+          "min_age",
+          "rain_ok",
+          "minutes_from_naha",
+          "confirmation_mode",
+          "photo_url",
+          "business_name",
+          "slots",
+          "description",
+          "meeting_point",
+          "map_url"
+        ],
+        "title": "ExperienceDetail",
+        "description": "体験の詳細。`slots` は、これから始まる受付中の便のすべて（満席のものも含む）。"
+      },
+      "ExperienceListItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "area": {
+            "type": "string",
+            "title": "Area"
+          },
+          "price_yen": {
+            "type": "integer",
+            "title": "Price Yen"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "title": "Duration Minutes"
+          },
+          "kids_ok": {
+            "type": "boolean",
+            "title": "Kids Ok"
+          },
+          "min_age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Age"
+          },
+          "rain_ok": {
+            "type": "boolean",
+            "title": "Rain Ok"
+          },
+          "minutes_from_naha": {
+            "type": "integer",
+            "title": "Minutes From Naha"
+          },
+          "confirmation_mode": {
+            "type": "string",
+            "title": "Confirmation Mode"
+          },
+          "photo_url": {
+            "type": "string",
+            "title": "Photo Url"
+          },
+          "business_name": {
+            "type": "string",
+            "title": "Business Name"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/SlotOut"
+            },
+            "type": "array",
+            "title": "Slots"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "summary",
+          "category",
+          "area",
+          "price_yen",
+          "duration_minutes",
+          "kids_ok",
+          "min_age",
+          "rain_ok",
+          "minutes_from_naha",
+          "confirmation_mode",
+          "photo_url",
+          "business_name",
+          "slots"
+        ],
+        "title": "ExperienceListItem",
+        "description": "体験の一覧に出す、体験1件。`slots` は、条件に合う受付中の便（最大5件）。"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "LoginRequest": {
+        "properties": {
+          "login_id": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Login Id"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "login_id",
+          "password"
+        ],
+        "title": "LoginRequest"
+      },
+      "MeOut": {
+        "properties": {
+          "login_id": {
+            "type": "string",
+            "title": "Login Id"
+          },
+          "business": {
+            "$ref": "#/components/schemas/BusinessOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "login_id",
+          "business"
+        ],
+        "title": "MeOut"
+      },
+      "SlotOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Starts At"
+          },
+          "capacity": {
+            "type": "integer",
+            "title": "Capacity"
+          },
+          "remaining": {
+            "type": "integer",
+            "title": "Remaining"
+          },
+          "is_full": {
+            "type": "boolean",
+            "title": "Is Full"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "starts_at",
+          "capacity",
+          "remaining",
+          "is_full"
+        ],
+        "title": "SlotOut",
+        "description": "便。`remaining` は残席、`is_full` は満席かどうか。"
+      },
+      "SuggestionOut": {
+        "properties": {
+          "experience_id": {
+            "type": "integer",
+            "title": "Experience Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "photo_url": {
+            "type": "string",
+            "title": "Photo Url"
+          },
+          "price_yen": {
+            "type": "integer",
+            "title": "Price Yen"
+          },
+          "confirmation_mode": {
+            "type": "string",
+            "title": "Confirmation Mode"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "slots": {
+            "items": {
+              "$ref": "#/components/schemas/SlotOut"
+            },
+            "type": "array",
+            "title": "Slots"
+          }
+        },
+        "type": "object",
+        "required": [
+          "experience_id",
+          "title",
+          "summary",
+          "photo_url",
+          "price_yen",
+          "confirmation_mode",
+          "reason",
+          "slots"
+        ],
+        "title": "SuggestionOut",
+        "description": "AIコンシェルジュの提案1件。`reason` は、DBの事実から、アプリが作った理由。"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
