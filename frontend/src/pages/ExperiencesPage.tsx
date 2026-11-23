@@ -80,121 +80,124 @@ export default function ExperiencesPage() {
       <h1 className="text-xl font-bold text-slate-900">体験を探す</h1>
 
       <div className="space-y-4 lg:grid lg:grid-cols-[16rem_1fr] lg:items-start lg:gap-8 lg:space-y-0">
-      <section
-        aria-label="絞り込み"
-        className="space-y-3 rounded-2xl bg-slate-50 p-3 lg:sticky lg:top-32"
-      >
-        <div className="flex flex-wrap gap-2">
-          <FilterToggle
-            pressed={filters.kids_ok === true}
-            onClick={() => update('kids_ok', filters.kids_ok ? null : 'true')}
-          >
-            👶 子連れOK
-          </FilterToggle>
-          <FilterToggle
-            pressed={filters.rain_ok === true}
-            onClick={() => update('rain_ok', filters.rain_ok ? null : 'true')}
-          >
-            ☔ 雨でもOK
-          </FilterToggle>
-        </div>
+        <section
+          aria-label="絞り込み"
+          className="space-y-3 rounded-2xl bg-slate-50 p-3 lg:sticky lg:top-32"
+        >
+          <div className="flex flex-wrap gap-2">
+            <FilterToggle
+              pressed={filters.kids_ok === true}
+              onClick={() => update('kids_ok', filters.kids_ok ? null : 'true')}
+            >
+              👶 子連れOK
+            </FilterToggle>
+            <FilterToggle
+              pressed={filters.rain_ok === true}
+              onClick={() => update('rain_ok', filters.rain_ok ? null : 'true')}
+            >
+              ☔ 雨でもOK
+            </FilterToggle>
+          </div>
 
-        <div>
-          <label htmlFor="filter-date" className="mb-1 block text-xs font-medium text-slate-600">
-            日にち
-          </label>
-          <input
-            id="filter-date"
-            type="date"
-            min={todayInJapan()}
-            value={filters.date ?? ''}
-            onChange={(event) => update('date', event.target.value)}
-            className={inputClass}
+          <div>
+            <label htmlFor="filter-date" className="mb-1 block text-xs font-medium text-slate-600">
+              日にち
+            </label>
+            <input
+              id="filter-date"
+              type="date"
+              min={todayInJapan()}
+              value={filters.date ?? ''}
+              onChange={(event) => update('date', event.target.value)}
+              className={inputClass}
+            />
+          </div>
+
+          <Stepper
+            label="人数"
+            value={filters.party_size ?? 1}
+            min={1}
+            max={MAX_PARTY_SIZE}
+            onChange={(size) => update('party_size', size === 1 ? null : String(size))}
           />
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label
+                htmlFor="filter-area"
+                className="mb-1 block text-xs font-medium text-slate-600"
+              >
+                エリア
+              </label>
+              <select
+                id="filter-area"
+                value={filters.area ?? ''}
+                onChange={(event) => update('area', event.target.value)}
+                className={inputClass}
+              >
+                <option value="">すべて</option>
+                {areaOptions.map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label
+                htmlFor="filter-category"
+                className="mb-1 block text-xs font-medium text-slate-600"
+              >
+                種類
+              </label>
+              <select
+                id="filter-category"
+                value={filters.category ?? ''}
+                onChange={(event) => update('category', event.target.value)}
+                className={inputClass}
+              >
+                <option value="">すべて</option>
+                {CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {categoryLabels[category]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {hasFilters && (
+            <Link
+              to="/experiences"
+              replace
+              className="flex min-h-11 items-center justify-center text-sm text-brand-700 underline"
+            >
+              条件をリセット
+            </Link>
+          )}
+        </section>
+
+        <div aria-live="polite">
+          {query.isPending && <LoadingNotice />}
+          {query.isError && <ErrorNotice>{query.error.message}</ErrorNotice>}
+          {query.data && query.data.length === 0 && (
+            <InfoNotice>
+              条件に合う体験は、見つかりませんでした。条件を減らして、もう一度お試しください。
+            </InfoNotice>
+          )}
+          {query.data && query.data.length > 0 && (
+            <div className="space-y-3">
+              <p className="text-sm text-slate-600">{query.data.length}件の体験</p>
+              <ul className="grid gap-4 sm:grid-cols-2">
+                {query.data.map((experience) => (
+                  <li key={experience.id}>
+                    <ExperienceCard experience={experience} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-
-        <Stepper
-          label="人数"
-          value={filters.party_size ?? 1}
-          min={1}
-          max={MAX_PARTY_SIZE}
-          onChange={(size) => update('party_size', size === 1 ? null : String(size))}
-        />
-
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label htmlFor="filter-area" className="mb-1 block text-xs font-medium text-slate-600">
-              エリア
-            </label>
-            <select
-              id="filter-area"
-              value={filters.area ?? ''}
-              onChange={(event) => update('area', event.target.value)}
-              className={inputClass}
-            >
-              <option value="">すべて</option>
-              {areaOptions.map((area) => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label
-              htmlFor="filter-category"
-              className="mb-1 block text-xs font-medium text-slate-600"
-            >
-              種類
-            </label>
-            <select
-              id="filter-category"
-              value={filters.category ?? ''}
-              onChange={(event) => update('category', event.target.value)}
-              className={inputClass}
-            >
-              <option value="">すべて</option>
-              {CATEGORIES.map((category) => (
-                <option key={category} value={category}>
-                  {categoryLabels[category]}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {hasFilters && (
-          <Link
-            to="/experiences"
-            replace
-            className="flex min-h-11 items-center justify-center text-sm text-brand-700 underline"
-          >
-            条件をリセット
-          </Link>
-        )}
-      </section>
-
-      <div aria-live="polite">
-        {query.isPending && <LoadingNotice />}
-        {query.isError && <ErrorNotice>{query.error.message}</ErrorNotice>}
-        {query.data && query.data.length === 0 && (
-          <InfoNotice>
-            条件に合う体験は、見つかりませんでした。条件を減らして、もう一度お試しください。
-          </InfoNotice>
-        )}
-        {query.data && query.data.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-sm text-slate-600">{query.data.length}件の体験</p>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {query.data.map((experience) => (
-                <li key={experience.id}>
-                  <ExperienceCard experience={experience} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
       </div>
     </div>
   )

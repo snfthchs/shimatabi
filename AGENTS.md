@@ -15,7 +15,7 @@
 | 暗号化・ハッシュ | 個人情報は Fernet（`cryptography`）、パスワードは argon2id（`argon2-cffi`） |
 | Pythonのパッケージ管理 | `pip` と `venv`（`uv` が未導入で、新しく入れる手間を避けるため） |
 | フロントのパッケージ管理 | `npm`（`pnpm` が未導入のため） |
-| lint・型チェック | バックエンドは `ruff`・`mypy`、フロントエンドは `eslint`・`tsc` |
+| lint・format・型チェック | バックエンドは `ruff`・`mypy`、フロントエンドは `eslint`・`prettier`・`tsc` |
 | テスト | バックエンドは `pytest`。フロントエンドの自動テストは作らない（`docs/product/test-and-deliverables-plan.md`） |
 
 設計判断は `docs/adr/` にある（技術スタックとDB、ログイン方式、個人情報の暗号化）。
@@ -28,8 +28,9 @@
 |---|---|
 | 依存関係のインストール | `python3 -m venv backend/.venv` と `backend/.venv/bin/pip install -r backend/requirements-dev.txt`、`npm --prefix frontend install` |
 | テスト | `cd backend && .venv/bin/pytest` |
-| lint | `cd backend && .venv/bin/ruff check . && .venv/bin/ruff format --check .`、`npm --prefix frontend run lint` |
+| lint・format-check | `cd backend && .venv/bin/ruff check . && .venv/bin/ruff format --check .`、`npm --prefix frontend run lint && npm --prefix frontend run format:check` |
 | 型チェック | `cd backend && .venv/bin/mypy`、`npm --prefix frontend run typecheck` |
+| 整形（フロントエンド） | `npm --prefix frontend run format`（Prettier。`src/api/schema.d.ts` などの生成物は対象外） |
 | ビルド（フロントエンド） | `npm --prefix frontend run build` |
 | ローカル起動（バックエンド） | `cd backend && .venv/bin/uvicorn app.main:app --reload --env-file ../.env`（http://localhost:8000） |
 | ローカル起動（フロントエンド） | `npm --prefix frontend run dev`（http://localhost:5173。`/api` はバックエンドへ転送される） |
@@ -51,7 +52,7 @@
 設計文書で決めた、実装時に守ること。理由は、それぞれの文書にある。
 
 - **DBはORMだけで扱い、生SQLを書かない。** 定員の更新は、行ロックに頼らず、条件付きUPDATEで行う。日時はUTC・タイムゾーン付きで扱う（`docs/adr/0002-tech-stack-and-database.md`）。
-- **便の `booked_count`（予約済み人数）は、`app/services/bookings.py` の条件付きUPDATEだけで書き換える。** ほかの場所で、読んでから書き込まない（同時に来た予約で、定員を超えたり、人数が食い違ったりするため）。予約の作成・承認・却下は、その関数を使う。
+- **便の `booked_count`（予約済み人数）は、`app/services/bookings.py` の条件付きUPDATEだけで書き換える。** ほかの場所で、読んでから書き込まない（同時に来た予約で、定員を超えたり、人数が食い違ったりするため）。予約の作成・承認・却下は、その関数を使う。例外は、デモ用のシード（`app/seed.py`）だけで、予約の人数から計算した値を、最初に入れる。
 - **個人情報（予約者の氏名・電話・メール）は、暗号化して保存する。** マスクはサーバー側で行い、ログ・URL・AIへの入力に出さない（`docs/adr/0004-pii-encryption-and-masking.md`）。
 - **事業者向けのAPIは、ログイン中の事業者のデータだけを対象にする。** 他の事業者のデータは、存在しないもの（404）として扱う（`docs/adr/0003-authentication-session.md`）。ログイン中の事業者は `app/deps.py` の `CurrentUserDep` で取り出し、データは `app/scoping.py` の関数で絞る。
 - **エラーは、統一した形で返す**（`docs/product/design-overview.md` の4.4節）。`app/errors.py` の `AppError`（`UnauthenticatedError`、`NotFoundError` など）を使う。入力された値は、個人情報を含みうるので、エラーに含めない。
