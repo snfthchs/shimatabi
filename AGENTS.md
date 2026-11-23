@@ -40,7 +40,7 @@
 ## ディレクトリ構成
 | 場所 | 役割 |
 |---|---|
-| `backend/app/` | FastAPIのアプリ。`main.py` が入り口、`config.py` が環境変数の設定、`db.py` がDB接続と日時の型、`models.py` がデータモデル、`crypto.py` が個人情報の暗号化、`passwords.py` がパスワードのハッシュ化、`seed.py` がデモ用データ、`errors.py` が統一したエラー、`deps.py` が共通の依存（DBセッション・現在時刻・ログイン中の事業者）、`auth.py` がログインセッション、`scoping.py` が自社のデータに絞る条件、`routers/` が各APIのルーター |
+| `backend/app/` | FastAPIのアプリ。`main.py` が入り口、`config.py` が環境変数の設定、`db.py` がDB接続と日時の型、`models.py` がデータモデル、`crypto.py` が個人情報の暗号化、`passwords.py` がパスワードのハッシュ化、`seed.py` がデモ用データ、`errors.py` が統一したエラー、`deps.py` が共通の依存（DBセッション・現在時刻・ログイン中の事業者）、`auth.py` がログインセッション、`scoping.py` が自社のデータに絞る条件、`routers/` が各APIのルーター、`services/` が予約・体験検索の処理、`schemas.py` がAPIの入出力、`masking.py` が個人情報のマスク、`contact.py` が連絡先の正規化と照合 |
 | `backend/tests/` | バックエンドのテスト |
 | `frontend/src/` | Reactのアプリ |
 | `docs/product/` | プロダクトの方針・設計（MVPスコープ、非機能・インフラ、設計の概要、テスト計画） |
@@ -50,6 +50,7 @@
 設計文書で決めた、実装時に守ること。理由は、それぞれの文書にある。
 
 - **DBはORMだけで扱い、生SQLを書かない。** 定員の更新は、行ロックに頼らず、条件付きUPDATEで行う。日時はUTC・タイムゾーン付きで扱う（`docs/adr/0002-tech-stack-and-database.md`）。
+- **便の `booked_count`（予約済み人数）は、`app/services/bookings.py` の条件付きUPDATEだけで書き換える。** ほかの場所で、読んでから書き込まない（同時に来た予約で、定員を超えたり、人数が食い違ったりするため）。予約の作成・承認・却下は、その関数を使う。
 - **個人情報（予約者の氏名・電話・メール）は、暗号化して保存する。** マスクはサーバー側で行い、ログ・URL・AIへの入力に出さない（`docs/adr/0004-pii-encryption-and-masking.md`）。
 - **事業者向けのAPIは、ログイン中の事業者のデータだけを対象にする。** 他の事業者のデータは、存在しないもの（404）として扱う（`docs/adr/0003-authentication-session.md`）。ログイン中の事業者は `app/deps.py` の `CurrentUserDep` で取り出し、データは `app/scoping.py` の関数で絞る。
 - **エラーは、統一した形で返す**（`docs/product/design-overview.md` の4.4節）。`app/errors.py` の `AppError`（`UnauthenticatedError`、`NotFoundError` など）を使う。入力された値は、個人情報を含みうるので、エラーに含めない。
