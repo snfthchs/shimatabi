@@ -1,6 +1,27 @@
 """シマタビ（仮）のAPIの入り口。"""
 
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
+
+from app.crypto import get_cipher
+from app.db import create_db_engine, init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """起動時と終了時の処理。"""
+    # 暗号化の鍵が未設定・不正なら、起動の時点で、原因の分かるエラーにする。
+    get_cipher()
+    engine = create_db_engine()
+    init_db(engine)
+    app.state.engine = engine
+    try:
+        yield
+    finally:
+        engine.dispose()
+
 
 # APIの文書も `/api` の下に置く。開発では、フロントエンドの開発サーバーが
 # `/api` をこのAPIへ転送するので、同じオリジンのまま文書やOpenAPIを開ける。
@@ -8,6 +29,7 @@ app = FastAPI(
     title="シマタビ API",
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
 
 
