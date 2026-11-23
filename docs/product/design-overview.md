@@ -304,13 +304,21 @@ flowchart LR
 **出力**:
 ```json
 {
-  "conditions": { "date": "2026-12-01", "time_from": "12:00", "time_to": "18:00", "kids_ok": true, "max_minutes_from_naha": 60 },
+  "conditions": { "date": "2026-12-01", "time_from": "12:00:00", "time_to": "18:00:00", "kids_ok": true, "max_minutes_from_naha": 60 },
   "suggestions": [
-    { "experience_id": 3, "reason": "子連れOK・那覇から約40分・残り4席", "slots": [ { "slot_id": 21, "starts_at": "2026-12-01T05:00:00Z", "remaining": 4 } ] }
+    {
+      "experience_id": 3, "title": "型染めコースター体験", "summary": "…", "photo_url": "/photos/coaster.svg",
+      "price_yen": 3800, "confirmation_mode": "approval",
+      "reason": "子連れOK・雨でも実施・那覇から約10分・12/1 14:00の便は残り4席・予約は事業者の承認後に確定",
+      "slots": [ { "id": 21, "starts_at": "2026-12-01T05:00:00Z", "capacity": 4, "remaining": 4, "is_full": false } ]
+    }
   ],
-  "reply": "今日の午後に、子連れで行ける体験が2件見つかりました。…"
+  "reply": "12月1日の午後、子連れOK、那覇から60分以内という条件で、1件の体験が見つかりました。…"
 }
 ```
+
+- `conditions` の、読み取れなかった項目は `null`。`slots` の形は、他のAPI（体験の一覧）と同じ。
+- **`reason` は、AIではなく、アプリが、DBの事実から作る**。画面は、体験のカード（`title`、`photo_url`、`price_yen` など）と便を、このレスポンスだけで表示できる。
 
 ### 6.4 モックの仕組み（MVP）
 **ルールベース**で、LLMを使わずに同じ入出力を返す。
@@ -323,7 +331,7 @@ flowchart LR
   - 雨: 「雨」「悪天候」「天気が悪い」
   - 那覇: 「那覇から」
   - エリア名と種類の語は、辞書で対応させる。
-- 返答文の生成: テンプレートに、条件の要約と、候補ごとの理由（子連れ可、雨天可、移動時間、残席）を入れる。候補が0件なら、条件を緩める提案を返す（例: 「雨の条件を外すと◯件あります」）。
+- 返答文の生成: テンプレートに、条件の要約と、候補ごとの理由（子連れ可、雨天可、移動時間、残席）を入れる。候補が0件なら、条件を緩める提案を返す（例: 「雨の条件を外すと◯件あります」）。緩め方は、アプリが、条件を1つずつ外してDBで再検索し、**件数のあるものだけ**を、AIプロバイダーに渡す。読み取れる言葉の詳細は、`backend/app/ai/mock_provider.py` の冒頭に書いてある。
 - 条件がまったく取れなかったときは、一覧の画面へ誘導する文を返す。
 
 ### 6.5 実装レベルの判断
@@ -338,7 +346,7 @@ flowchart LR
 次の2つの操作を持つ「AIプロバイダー」の約束事（インターフェース）を定義する。
 
 - `extract_conditions(message, now) -> Conditions`
-- `compose_reply(conditions, candidates) -> str`
+- `compose_reply(conditions, candidates, relaxations) -> str`（`relaxations` は、0件のときの、件数のある緩め方）
 
 環境変数 `AI_PROVIDER`（`mock` または `llm`）で切り替える。LLMのAPIキーは `.env` に置き、コミットしない（秘密情報の管理は、非機能要件のとおり）。
 

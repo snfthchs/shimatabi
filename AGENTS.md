@@ -40,7 +40,7 @@
 ## ディレクトリ構成
 | 場所 | 役割 |
 |---|---|
-| `backend/app/` | FastAPIのアプリ。`main.py` が入り口、`config.py` が環境変数の設定、`db.py` がDB接続と日時の型、`models.py` がデータモデル、`crypto.py` が個人情報の暗号化、`passwords.py` がパスワードのハッシュ化、`seed.py` がデモ用データ、`errors.py` が統一したエラー、`deps.py` が共通の依存（DBセッション・現在時刻・ログイン中の事業者）、`auth.py` がログインセッション、`scoping.py` が自社のデータに絞る条件、`routers/` が各APIのルーター、`services/` が予約・体験検索の処理、`schemas.py` がAPIの入出力、`masking.py` が個人情報のマスク、`contact.py` が連絡先の正規化と照合 |
+| `backend/app/` | FastAPIのアプリ。`main.py` が入り口、`config.py` が環境変数の設定、`db.py` がDB接続と日時の型、`models.py` がデータモデル、`crypto.py` が個人情報の暗号化、`passwords.py` がパスワードのハッシュ化、`seed.py` がデモ用データ、`errors.py` が統一したエラー、`deps.py` が共通の依存（DBセッション・現在時刻・ログイン中の事業者）、`auth.py` がログインセッション、`scoping.py` が自社のデータに絞る条件、`routers/` が各APIのルーター、`services/` が予約・体験検索の処理、`schemas.py` がAPIの入出力、`masking.py` が個人情報のマスク、`contact.py` が連絡先の正規化と照合、`ai/` がAIコンシェルジュのプロバイダー（約束事、ルールベースのモック、`AI_PROVIDER` で選ぶ部品） |
 | `backend/tests/` | バックエンドのテスト |
 | `frontend/src/` | Reactのアプリ |
 | `docs/product/` | プロダクトの方針・設計（MVPスコープ、非機能・インフラ、設計の概要、テスト計画） |
@@ -54,7 +54,7 @@
 - **個人情報（予約者の氏名・電話・メール）は、暗号化して保存する。** マスクはサーバー側で行い、ログ・URL・AIへの入力に出さない（`docs/adr/0004-pii-encryption-and-masking.md`）。
 - **事業者向けのAPIは、ログイン中の事業者のデータだけを対象にする。** 他の事業者のデータは、存在しないもの（404）として扱う（`docs/adr/0003-authentication-session.md`）。ログイン中の事業者は `app/deps.py` の `CurrentUserDep` で取り出し、データは `app/scoping.py` の関数で絞る。
 - **エラーは、統一した形で返す**（`docs/product/design-overview.md` の4.4節）。`app/errors.py` の `AppError`（`UnauthenticatedError`、`NotFoundError` など）を使う。入力された値は、個人情報を含みうるので、エラーに含めない。
-- **AIには、検索も予約も任せない。** AIプロバイダー（モック／LLM）は差し替えられる構造にする。
+- **AIには、検索も予約も任せない。** AIプロバイダー（モック／LLM）は差し替えられる構造にする（`app/ai/provider.py` の約束事）。AIが担当するのは、条件の抽出と返答文の生成だけ。検索は `app/services/experience_search.py`、流れは `app/services/concierge.py` で行い、提案の理由は、DBの事実からアプリが作る。AIが出した条件は、`Conditions` で検証してから使う。旅行者の文章は、ログに残さず、応答にも含めない。
 - **秘密情報（鍵、APIキー）は `.env` に置き、コミットしない。** シードのデータは架空にし、本番環境（`APP_ENV=production`）では実行しない。
 - **P0の機能（定員、認可、個人情報、予約の流れ）は、時間が足りなくても縮小しない**（`docs/product/mvp-scope.md`）。
 
