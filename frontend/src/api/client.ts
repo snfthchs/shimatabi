@@ -48,6 +48,10 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
   if (!response.ok) {
     throw await readError(response)
   }
+  if (response.status === 204) {
+    // 本文のない成功（ログアウトなど）
+    return undefined as T
+  }
   return (await response.json()) as T
 }
 
