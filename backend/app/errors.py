@@ -52,6 +52,20 @@ class NotFoundError(AppError):
         super().__init__(ErrorCode.NOT_FOUND, message, 404)
 
 
+class SlotUnavailableError(AppError):
+    """満席、残席が足りない、または受付を終了した便に予約しようとした（409）。"""
+
+    def __init__(self, message: str = "この便は満席、または受付を終了しています。") -> None:
+        super().__init__(ErrorCode.SLOT_UNAVAILABLE, message, 409)
+
+
+class InvalidStateError(AppError):
+    """すでに承認・却下された予約を、さらに承認・却下しようとした（409）。"""
+
+    def __init__(self, message: str = "この予約は、すでに処理されています。") -> None:
+        super().__init__(ErrorCode.INVALID_STATE, message, 409)
+
+
 def error_body(
     code: ErrorCode, message: str, details: list[dict[str, str]] | None = None
 ) -> dict[str, Any]:

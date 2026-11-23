@@ -63,7 +63,10 @@ def create_db_engine(url: str | None = None) -> Engine:
     if url is None:
         DEFAULT_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
         url = f"sqlite:///{DEFAULT_DB_PATH}"
-    engine = create_engine(url)
+    # SQLiteは、同時に書き込めるのは1つだけ。ほかの書き込みが終わるのを、最大30秒待つ
+    # （待たずに「database is locked」で失敗するのを防ぐ）。
+    connect_args = {"timeout": 30} if url.startswith("sqlite") else {}
+    engine = create_engine(url, connect_args=connect_args)
     if engine.dialect.name == "sqlite":
         event.listen(engine, "connect", _enable_sqlite_foreign_keys)
     return engine
