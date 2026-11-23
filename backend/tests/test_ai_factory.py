@@ -109,3 +109,14 @@ def test_conditions_accept_a_json_like_dict() -> None:
 def test_empty_conditions() -> None:
     assert Conditions().is_empty()
     assert not Conditions(kids_ok=True).is_empty()
+
+
+def test_the_llm_client_does_not_make_a_traveler_wait_long() -> None:
+    from app.ai.factory import LLM_MAX_RETRIES, LLM_TIMEOUT_SECONDS, _build_llm_provider
+
+    provider = _build_llm_provider("sk-ant-dummy-for-test", "claude-haiku-5-5")
+    client = provider._client
+
+    assert LLM_MAX_RETRIES == 0
+    assert client.max_retries == 0
+    assert client.timeout == LLM_TIMEOUT_SECONDS == 15.0

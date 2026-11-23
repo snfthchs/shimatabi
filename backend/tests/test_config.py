@@ -44,6 +44,13 @@ def test_values_are_read_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.anthropic_model == "claude-sonnet-5-5"
 
 
+def test_the_encryption_key_is_not_shown_in_repr() -> None:
+    settings = Settings(app_env="development", pii_encryption_key="secret-fernet-key-value")
+
+    assert "secret-fernet-key-value" not in repr(settings)
+    assert "secret-fernet-key-value" not in str(settings)
+
+
 def test_the_api_key_is_not_shown_in_repr() -> None:
     # ログやエラーに、設定を表示しても、秘密の値が出ないこと
     settings = Settings(

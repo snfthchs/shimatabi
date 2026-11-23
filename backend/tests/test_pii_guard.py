@@ -18,6 +18,14 @@ from app.ai.pii_guard import MaskResult, mask_personal_info
         ("098-123-4567", "[電話番号]", "電話番号"),
         ("0120-123-456", "[電話番号]", "電話番号"),
         ("+81 90 1234 5678", "[電話番号]", "電話番号"),
+        # 市外局番を括弧で囲む書き方、ドット区切り、国番号のあとの（0）
+        ("(03)1234-5678", "[電話番号]", "電話番号"),
+        ("03(1234)5678", "[電話番号]", "電話番号"),
+        ("０３（１２３４）５６７８", "[電話番号]", "電話番号"),
+        ("(090)1234-5678に電話して", "[電話番号]に電話して", "電話番号"),
+        ("090.1234.5678", "[電話番号]", "電話番号"),
+        ("+81(0)90-1234-5678", "[電話番号]", "電話番号"),
+        ("+81-90-1234-5678", "[電話番号]", "電話番号"),
         ("taro.yamada+test@example.com まで", "[メールアドレス] まで", "メールアドレス"),
         ("TARO@Example.CO.JP", "[メールアドレス]", "メールアドレス"),
         ("〒900-0001 那覇市", "[郵便番号] 那覇市", "郵便番号"),
@@ -46,6 +54,11 @@ def test_personal_info_is_replaced_with_a_label(message: str, expected: str, kin
         "11月30日の10時から",
         "予約番号は不要です",
         "大人2人と子供1人で、1時間以内",
+        # 郵便番号の形に見えるが、直後が単位（金額・人数・時間）のもの
+        "予算は500-1000円くらい",
+        "予算は500-1000 円くらい",
+        "300-1000人くらいの団体",
+        "(03)で始まる番号以外で、予算は1000円",
         "",
     ],
 )
@@ -85,3 +98,10 @@ def test_the_result_never_contains_the_original_values() -> None:
 
 def test_a_result_without_kinds_is_not_masked() -> None:
     assert MaskResult(text="x").masked is False
+
+
+def test_a_postal_code_without_the_mark_is_still_masked_when_no_unit_follows() -> None:
+    result = mask_personal_info("宿は900-0001です")
+
+    assert result.text == "宿は[郵便番号]です"
+    assert result.kinds == ("郵便番号",)

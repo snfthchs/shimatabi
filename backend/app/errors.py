@@ -26,6 +26,7 @@ class ErrorCode(enum.StrEnum):
     SLOT_UNAVAILABLE = "SLOT_UNAVAILABLE"  # 満席、または受付を終了した便（409）
     INVALID_STATE = "INVALID_STATE"  # すでに承認・却下された予約への操作など（409）
     HTTP_ERROR = "HTTP_ERROR"  # 上記以外のHTTPエラー（405 など）
+    INTERNAL_ERROR = "INTERNAL_ERROR"  # 想定外のエラー（500）
 
 
 class AppError(Exception):
@@ -98,6 +99,18 @@ def install_error_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=422,
             content=error_body(ErrorCode.VALIDATION_ERROR, "入力内容が正しくありません。", details),
+        )
+
+    @app.exception_handler(Exception)
+    async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
+        # 想定外のエラーも、同じ形で返す。例外の内容は、個人情報を含みうるので、返さない。
+        # 詳しい記録は、サーバーが例外を再送出して、ログに残す。
+        return JSONResponse(
+            status_code=500,
+            content=error_body(
+                ErrorCode.INTERNAL_ERROR,
+                "サーバーでエラーが発生しました。しばらくしてから、もう一度お試しください。",
+            ),
         )
 
     # FastAPI の HTTPException ではなく、Starlette の方に登録する。
