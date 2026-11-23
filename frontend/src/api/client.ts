@@ -43,7 +43,11 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
       headers: { 'Content-Type': 'application/json', ...init?.headers },
     })
   } catch {
-    throw new ApiError(0, 'NETWORK', '通信できませんでした。電波の状態を確認して、もう一度お試しください。')
+    throw new ApiError(
+      0,
+      'NETWORK',
+      '通信できませんでした。電波の状態を確認して、もう一度お試しください。',
+    )
   }
   if (!response.ok) {
     throw await readError(response)

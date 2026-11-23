@@ -10,7 +10,11 @@ export default function SuggestionCard({ suggestion }: { suggestion: Suggestion 
   return (
     <article className="overflow-hidden rounded-2xl border border-brand-100 bg-white shadow-sm">
       <Link to={`/experiences/${suggestion.experience_id}`} className="flex gap-3 p-3">
-        <Photo src={suggestion.photo_url} alt={suggestion.title} className="h-20 w-24 shrink-0 rounded-lg" />
+        <Photo
+          src={suggestion.photo_url}
+          alt={suggestion.title}
+          className="h-20 w-24 shrink-0 rounded-lg"
+        />
         <div className="min-w-0 space-y-1">
           <h3 className="text-base font-bold text-slate-900">{suggestion.title}</h3>
           <p className="text-sm text-slate-700">

@@ -15,7 +15,8 @@ const queryClient = new QueryClient({
       // 入力や存在しないものへのエラー（4xx）は、やり直しても同じなので、再試行しない。
       // 通信の失敗や、サーバー側のエラーだけ、1回だけやり直す。
       retry: (failureCount, error) =>
-        failureCount < 1 && !(error instanceof ApiError && error.status >= 400 && error.status < 500),
+        failureCount < 1 &&
+        !(error instanceof ApiError && error.status >= 400 && error.status < 500),
     },
   },
 })

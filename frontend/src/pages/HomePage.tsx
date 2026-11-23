@@ -92,10 +92,7 @@ export default function HomePage() {
         </div>
       </form>
 
-      <div
-        aria-live="polite"
-        className="space-y-3 lg:col-start-2 lg:row-span-4 lg:row-start-1"
-      >
+      <div aria-live="polite" className="space-y-3 lg:col-start-2 lg:row-span-4 lg:row-start-1">
         {!concierge.isPending && !concierge.data && !errorMessage && (
           <p className="hidden rounded-2xl border border-dashed border-slate-300 px-4 py-10 text-center text-sm text-slate-500 lg:block">
             相談すると、合う体験の提案が、ここに出ます。
