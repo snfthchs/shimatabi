@@ -45,6 +45,27 @@ cd backend && .venv/bin/python -m app.seed --reset
 | やんばる星空ガイド | `demo-night` | `demo-only-password` | 同上 |
 | 島ごはん教室 | `demo-food` | `demo-only-password` | 同上 |
 
+## AIコンシェルジュの設定
+キーがなくても、AI相談は動く（ルールベースのモックで答える）。LLM（Claude）で答えさせるときだけ、`.env` に、次を書く。
+
+| 環境変数 | 内容 |
+|---|---|
+| `ANTHROPIC_API_KEY` | AnthropicのAPIキー。書くと、LLMで答える。空なら、モックで答える。LLMが失敗したとき（残高切れ・上限・回線など）も、モックで答える |
+| `ANTHROPIC_MODEL` | LLMのモデル。空なら、`claude-haiku-5-5` |
+
+選べるモデル（値段は、100万トークンあたり。2026年11月3日時点で、最新は[公式の料金表](https://platform.claude.com/docs/en/about-claude/pricing)で確かめる）:
+
+| モデル | `ANTHROPIC_MODEL` の値 | 入力 / 出力 | 向いているもの |
+|---|---|---|---|
+| Claude Haiku 5.5 | `claude-haiku-5-5`（既定） | $0.10 / $0.50 | もっとも安く、速い。このアプリの用途（条件の抽出と、1文の返答）には、これで足りる |
+| Claude Sonnet 5.5 | `claude-sonnet-5-5` | $2 / $10 | 言い回しの読み取りを、より正確にしたいとき |
+| Claude Opus 5.5 | `claude-opus-5-5` | $4 / $20 | さらに正確さを求めるとき。費用は、Haikuの約40倍 |
+| Claude Fable 5.2 | `claude-fable-5-2` | $8 / $40 | 長時間の複雑な作業向け。この用途には、過剰 |
+
+- 表のモデルの動作は、キーを入れたあとに、`cd backend && .venv/bin/python scripts/check_llm.py` で確かめる（送るのは、固定の例文だけ）。
+- 個人情報らしき文字列は、モックでもLLMでも、AIに渡す前に伏せる。LLMに渡すのは、旅行者の文章（伏せたあと）と、読み取った条件・件数だけで、体験の内容（DB）や、予約者の個人情報は渡さない。
+- キーの取得方法、費用、判断の理由は、[アーキテクチャと実装の詳細](docs/architecture.md)の5.1節と、[ADR 0007](docs/adr/0007-llm-provider.md)にある。
+
 ## 起動
 ターミナルを2つ開いて、それぞれで起動する。
 
