@@ -65,6 +65,7 @@
 ## 参照ドキュメント
 - `docs/product/` — 何を作るか（プロダクトの方針・仕様）
 - `docs/adr/` — 設計判断の記録
+- `docs/architecture.md` — 実装の詳細（API、画面の補足、AIの仕組み、セットアップの補足）
 - `docs/summary.md` — 提出用の設計の要約（図つき）
 - `docs/demo-checklist.md` — デモのチェックリストと、通した結果
 - `docs/ai-dev-log.md` — AIとの開発の振り返り
