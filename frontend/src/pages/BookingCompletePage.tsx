@@ -49,7 +49,7 @@ export default function BookingCompletePage() {
   const confirmed = booking.status === 'confirmed'
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-xl space-y-5">
       <section className="space-y-2 text-center">
         <p className="text-4xl" aria-hidden="true">
           {confirmed ? '🎉' : '📨'}
