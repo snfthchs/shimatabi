@@ -14,3 +14,8 @@ pythonpath = ["."]
 python_version = "3.12"
 strict = true
 files = ["app", "tests"]
+
+# boto3 には型の情報がないため、型チェックの対象から外す。
+[[tool.mypy.overrides]]
+module = ["boto3"]
+ignore_missing_imports = true

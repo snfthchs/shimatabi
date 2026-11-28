@@ -107,3 +107,22 @@ npm --prefix frontend run gen:api
 
 7. バックエンドを再起動する。ログに、「AIコンシェルジュ: LLM（モデル: …）」と出れば、LLMで動いている。使用量は、Consoleの [Usage](https://platform.claude.com/usage) で見られる。
 - 設計は、[設計の概要](product/design-overview.md)の6章にある。
+
+## クラウドで動かすときの設定
+
+コンテナイメージは `backend/Dockerfile` で作る。画面は、ビルドした静的ファイルを別に配信する。クラウドのインフラと、反映の手順は、非公開のインフラ用のリポジトリで管理する。
+
+次の環境変数は、指定しなければ、ローカルの動き（SQLite、HTTPのときは `Secure` なしのCookie）になる。
+
+| 環境変数 | 内容 |
+|---|---|
+| `APP_ENV` | クラウドのデモ環境は `cloud-demo`。シードで、`DEMO_PASSWORD` の指定が必須になる |
+| `COOKIE_SECURE` | `true` で、ログインのCookieに必ず `Secure` を付ける（HTTPSの手前で終端し、アプリにはHTTPで届く構成のため） |
+| `DEMO_PASSWORD` | シードで作る事業者アカウントのパスワード |
+| `DB_HOST`、`DB_PORT`、`DB_NAME`、`DB_USER` | `DB_HOST` を指定すると、PostgreSQLに接続する |
+| `DB_AUTH` | `iam`（既定。IAMの短命のトークン。`AWS_REGION` が必要）か、`password`（`DB_PASSWORD` を使う） |
+| `DB_SSLMODE`、`DB_SSL_ROOT_CERT` | 既定は `verify-full`（サーバー証明書を検証する）。証明書のファイルは、イメージに含めている |
+
+PostgreSQLでテストする場合は、テスト専用のDBを `TEST_DATABASE_URL`（`postgresql+psycopg://...`）に指定して、`pytest` を実行する。指定したDBのテーブルは、テストのたびに消える。
+
+データベースの利用者の作成と権限の付与は、インフラ側で行う。アプリは、テーブルがそろっていれば、テーブルを作る権限がなくても起動できる。

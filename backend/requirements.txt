@@ -3,6 +3,9 @@ fastapi==0.165.0
 uvicorn[standard]==0.54.0
 # DB（ORM）
 sqlalchemy==2.1.9
+# クラウドで使うPostgreSQLの接続と、IAMの短命のトークンの作成
+psycopg[binary]==3.3.9
+boto3==1.44.13
 # 個人情報の暗号化（Fernet）
 cryptography==50.0.2
 # パスワードのハッシュ化（argon2id）
