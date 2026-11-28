@@ -11,7 +11,7 @@
 |---|---|
 | フロントエンド | React、TypeScript、Vite、Tailwind CSS（`frontend/`） |
 | バックエンド | Python 3.12、FastAPI（`backend/`） |
-| データベース | SQLite（SQLAlchemy 2.x のORM経由。ファイルは `backend/data/shimatabi.db`） |
+| データベース | ローカルはSQLite（ファイルは `backend/data/shimatabi.db`）、クラウドはPostgreSQL（どちらもSQLAlchemy 2.x のORM経由。設定は `docs/architecture.md`） |
 | 暗号化・ハッシュ | 個人情報は Fernet（`cryptography`）、パスワードは argon2id（`argon2-cffi`） |
 | Pythonのパッケージ管理 | `pip` と `venv`（`uv` が未導入で、新しく入れる手間を避けるため） |
 | フロントのパッケージ管理 | `npm`（`pnpm` が未導入のため） |
