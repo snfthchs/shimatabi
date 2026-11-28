@@ -1,4 +1,5 @@
 import datetime
+import os
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -8,7 +9,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
-from app.db import create_db_engine, init_db, make_session_factory
+from app.db import create_db_engine, init_db, make_session_factory, reset_db
 from app.deps import get_now, get_session_factory
 from app.main import app
 from tests.fakes import FakeClock
@@ -27,9 +28,16 @@ def engine(tmp_path: Path) -> Iterator[Engine]:
     """テストごとに作り直す、一時ファイルのSQLite。
 
     同時実行のテストでも使えるよう、メモリ上ではなくファイルにする。
+    環境変数 `TEST_DATABASE_URL` を指定すると、そのDB（PostgreSQL）で実行する。
+    指定したDBのテーブルは、テストごとに消すので、テスト専用のDBを指定する。
     """
-    engine = create_db_engine(f"sqlite:///{tmp_path / 'test.db'}")
-    init_db(engine)
+    url = os.environ.get("TEST_DATABASE_URL")
+    if url:
+        engine = create_db_engine(url)
+        reset_db(engine)
+    else:
+        engine = create_db_engine(f"sqlite:///{tmp_path / 'test.db'}")
+        init_db(engine)
     yield engine
     engine.dispose()
 

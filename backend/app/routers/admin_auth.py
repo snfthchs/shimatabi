@@ -12,6 +12,7 @@ from app.auth import (
     create_login_session,
     delete_session,
 )
+from app.config import get_settings
 from app.deps import CurrentUserDep, NowDep, SessionDep
 from app.errors import UnauthenticatedError
 from app.models import BusinessUser
@@ -43,9 +44,10 @@ def _me(user: BusinessUser) -> MeOut:
     )
 
 
-def _is_https(request: Request) -> bool:
-    # HTTPSのときだけ、Cookieに `Secure` を付ける（ローカルの開発は http）。
-    return request.url.scheme == "https"
+def _use_secure_cookie(request: Request) -> bool:
+    # HTTPSのときは、Cookieに `Secure` を付ける（ローカルの開発は http）。
+    # 手前でHTTPSを終える構成では、アプリに届く通信がHTTPのため、設定で必ず付ける。
+    return get_settings().cookie_secure or request.url.scheme == "https"
 
 
 @router.post("/login", response_model=MeOut)
@@ -68,7 +70,7 @@ def login(
         max_age=int(SESSION_TTL.total_seconds()),
         httponly=True,
         samesite="lax",
-        secure=_is_https(request),
+        secure=_use_secure_cookie(request),
         path="/",
     )
     response.headers["Cache-Control"] = "no-store"
@@ -90,7 +92,7 @@ def logout(
         path="/",
         httponly=True,
         samesite="lax",
-        secure=_is_https(request),
+        secure=_use_secure_cookie(request),
     )
     return response
 

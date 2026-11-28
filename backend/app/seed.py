@@ -24,7 +24,13 @@ from sqlalchemy.orm import Session
 from app.clock import JST, utc_now
 from app.config import Settings, get_settings
 from app.crypto import ConfigurationError
-from app.db import create_db_engine, init_db, make_session_factory, reset_db
+from app.db import (
+    DatabaseConfigurationError,
+    create_db_engine,
+    init_db,
+    make_session_factory,
+    reset_db,
+)
 from app.models import (
     ACTIVE_BOOKING_STATUSES,
     Booking,
@@ -41,9 +47,11 @@ from app.passwords import hash_password
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-# 架空・デモ専用のパスワード。本番では使わない。
+# ローカル用の、架空・デモ専用のパスワード。本番では使わない。
 # 本番環境（`APP_ENV=production`）では、シードを実行できないようにしてある。
 DEMO_PASSWORD = "demo-only-password"
+# クラウドのデモ環境。公開している上のパスワードは使えないので、`DEMO_PASSWORD` の指定を必須にする。
+CLOUD_DEMO_ENV = "cloud-demo"
 
 # 今日から数えて、何日分の便を作るか
 DAYS = 7
@@ -368,10 +376,10 @@ BOOKINGS: tuple[BookingSpec, ...] = (
 )
 
 
-def seed(session: Session, now: datetime.datetime) -> None:
+def seed(session: Session, now: datetime.datetime, password: str = DEMO_PASSWORD) -> None:
     """デモ用のデータを投入する。コミットは、呼び出し側で行う。
 
-    `now` は、タイムゾーン付きの現在日時。
+    `now` は、タイムゾーン付きの現在日時。`password` は、事業者アカウントのパスワード。
     """
     today = now.astimezone(JST).date()
     slots: dict[tuple[str, int, datetime.time], Slot] = {}
@@ -381,7 +389,7 @@ def seed(session: Session, now: datetime.datetime) -> None:
         business.users.append(
             BusinessUser(
                 login_id=business_spec.login_id,
-                password_hash=hash_password(DEMO_PASSWORD),
+                password_hash=hash_password(password),
             )
         )
         for spec in business_spec.experiences:
@@ -446,9 +454,20 @@ def ensure_not_production(settings: Settings) -> None:
         raise SeedError("APP_ENV=production のため、シードは実行できません。")
 
 
+def demo_password(settings: Settings) -> str:
+    """事業者アカウントに設定するパスワードを返す。"""
+    password = settings.demo_password
+    if settings.app_env == CLOUD_DEMO_ENV and (password is None or password == DEMO_PASSWORD):
+        raise SeedError(
+            f"APP_ENV={CLOUD_DEMO_ENV} では、公開していない値を DEMO_PASSWORD に指定してください。"
+        )
+    return password or DEMO_PASSWORD
+
+
 def run_seed(engine: Engine, *, settings: Settings, reset: bool, now: datetime.datetime) -> None:
     """シードを実行する。`reset` なら、すべてのテーブルを消して作り直してから投入する。"""
     ensure_not_production(settings)
+    password = demo_password(settings)  # DBに触る前に確認する
     if reset:
         reset_db(engine)
     else:
@@ -456,7 +475,7 @@ def run_seed(engine: Engine, *, settings: Settings, reset: bool, now: datetime.d
     with make_session_factory(engine)() as session:
         if session.scalar(select(func.count()).select_from(Business)):
             raise SeedError("すでにデータがあります。作り直すには `--reset` をつけてください。")
-        seed(session, now)
+        seed(session, now, password)
         session.commit()
 
 
@@ -475,14 +494,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     try:
         settings = get_settings()
         ensure_not_production(settings)  # DBに触る前に確認する
-        run_seed(create_db_engine(), settings=settings, reset=args.reset, now=utc_now())
-    except (SeedError, ConfigurationError) as error:
+        engine = create_db_engine(settings=settings)
+        run_seed(engine, settings=settings, reset=args.reset, now=utc_now())
+    except (SeedError, ConfigurationError, DatabaseConfigurationError) as error:
         print(f"エラー: {error}", file=sys.stderr)
         return 1
 
     accounts = ", ".join(business.login_id for business in BUSINESSES)
     print("シードを投入しました（すべて架空のデータです）。")
-    print(f"事業者アカウント: {accounts}（パスワードは `app/seed.py` の DEMO_PASSWORD）")
+    source = (
+        "環境変数 DEMO_PASSWORD の値"
+        if settings.demo_password
+        else "`app/seed.py` の DEMO_PASSWORD"
+    )
+    print(f"事業者アカウント: {accounts}（パスワードは {source}）")
     return 0
 
 

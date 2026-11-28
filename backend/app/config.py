@@ -25,6 +25,22 @@ class Settings:
     anthropic_api_key: str | None = field(default=None, repr=False)
     # LLMのモデル。
     anthropic_model: str = DEFAULT_ANTHROPIC_MODEL
+    # ログインのCookieに、必ず `Secure` を付ける（HTTPSの手前で、通信がHTTPになる構成のため）。
+    cookie_secure: bool = False
+    # デモ用の事業者のパスワード。未設定なら、ローカル用の公開している値を使う。
+    demo_password: str | None = field(default=None, repr=False)
+    # 以下は、PostgreSQLに接続する場合の設定。`db_host` が未設定なら、SQLiteを使う。
+    db_host: str | None = None
+    db_port: int = 5432
+    db_name: str | None = None
+    db_user: str | None = None
+    # `iam`（IAMの短命のトークン）か、`password`。
+    db_auth: str = "iam"
+    db_password: str | None = field(default=None, repr=False)
+    # サーバー証明書の検証の方法と、信頼する認証局の証明書のファイル。
+    db_sslmode: str = "verify-full"
+    db_ssl_root_cert: str | None = None
+    aws_region: str | None = None
 
 
 def get_settings() -> Settings:
@@ -35,4 +51,15 @@ def get_settings() -> Settings:
         pii_encryption_key=os.environ.get("PII_ENCRYPTION_KEY") or None,
         anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY") or None,
         anthropic_model=os.environ.get("ANTHROPIC_MODEL") or DEFAULT_ANTHROPIC_MODEL,
+        cookie_secure=(os.environ.get("COOKIE_SECURE") or "").lower() == "true",
+        demo_password=os.environ.get("DEMO_PASSWORD") or None,
+        db_host=os.environ.get("DB_HOST") or None,
+        db_port=int(os.environ.get("DB_PORT") or 5432),
+        db_name=os.environ.get("DB_NAME") or None,
+        db_user=os.environ.get("DB_USER") or None,
+        db_auth=os.environ.get("DB_AUTH") or "iam",
+        db_password=os.environ.get("DB_PASSWORD") or None,
+        db_sslmode=os.environ.get("DB_SSLMODE") or "verify-full",
+        db_ssl_root_cert=os.environ.get("DB_SSL_ROOT_CERT") or None,
+        aws_region=os.environ.get("AWS_REGION") or None,
     )
